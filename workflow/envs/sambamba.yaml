@@ -1,0 +1,9 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - sambamba=0.7.1
+  - samtools=1.9
+  - bamtools=2.5.1
+  - openssl=1.0

@@ -1,0 +1,28 @@
+workdir: "/hpc/users/viallr01/ad-omics/ricardo/MyRepo/snakeSV/"
+
+OUT_FOLDER: "results1"
+SAMPLE_KEY: "example/sampleKey.txt"
+
+TOOLS: 
+  - "manta"
+  - "smoove" 
+  - "delly"
+
+ANNOTATION_BED: 
+  - "data/brain-cell-type-peak-files/astrocytes_H3K27ac.bed"
+  - "data/brain-cell-type-peak-files/microglia_H3K27ac.bed"
+  - "data/brain-cell-type-peak-files/neurons_H3K27ac.bed"
+  - "data/brain-cell-type-peak-files/oligodendrocytes_H3K27ac.bed"
+
+SV_PANEL: 
+  - "data/sv_panel/hg002/variants.22.vcf"
+
+LIB_DIR: "resources/"
+
+REFERENCE_FASTA: "data/ref/human_g1k_v37.fasta"
+REF_BUILD: "37"
+GENCODE_GTF: "data/annotation/gencode.v38lift37.annotation.nochr.gtf.gz"
+DICT: "data/ref/human_g1k_v37.dict"
+NMASK: "data/ref/human_g1k_v37.mask.36.fasta.bed"
+
+TMP_DIR: "~/ad-omics/ricardo/tmp/"

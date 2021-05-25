@@ -1,0 +1,11 @@
+__default__:
+  project: acc_ad-omics
+  queue: express
+  cores: 1
+  nodes: 1
+  mem: 16000
+  time: '12:00'
+  name: $(basename $(pwd)).{rule}.{wildcards}
+  output: clusterlog/{rule}.{wildcards}.stdout
+  error: clusterlog/{rule}.{wildcards}.stderr
+

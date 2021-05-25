@@ -1,0 +1,10 @@
+.snakemake
+.DS_Store
+.Rhistory
+bioconda
+clusterlog
+data
+results*
+snakejob
+ms_results
+README.html

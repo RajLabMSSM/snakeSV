@@ -1,0 +1,5 @@
+channels:
+  - bioconda
+dependencies:
+  - survivor=1.0.7
+  - bcftools=1.12

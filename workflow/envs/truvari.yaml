@@ -1,0 +1,5 @@
+channels:
+  - bioconda
+dependencies:
+  - truvari=0.1.2018.08.10
+  - bcftools=1.12

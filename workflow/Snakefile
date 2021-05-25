@@ -1,0 +1,124 @@
+import os
+import glob
+import yaml
+import pandas as pd
+from snakemake.io import *
+
+version="0.1"
+
+###################################################################################################
+## Check input
+###################################################################################################
+if( "SAMPLE_KEY" not in config ):
+    sys.exit("No samples defined on the configuration file")
+if( "OUT_FOLDER" not in config ):
+    sys.exit("No output folder defined on the configuration file")
+if( "TOOLS" not in config ):
+    sys.exit("No tools defined on the configuration file")
+if( "REFERENCE_FASTA" not in config ):
+    sys.exit("No reference fasta defined on the configuration file")
+if( "REF_BUILD" not in config ):
+    sys.exit("No reference build defined on the configuration file")
+if( "TMP_DIR" not in config ):
+    sys.exit("No tmp folder defined on the configuration file")
+
+OUT_FOLDER = config["OUT_FOLDER"]
+TOOLS = config["TOOLS"]
+REFERENCE_FASTA = config["REFERENCE_FASTA"]
+REF_BUILD = config["REF_BUILD"]
+TMP_DIR = config["TMP_DIR"]
+LIB_DIR = config["LIB_DIR"]
+
+## Check sample key file
+import os, glob, ntpath, math, shutil, yaml, pandas
+
+try:
+	f_input_list = pandas.read_csv(config["SAMPLE_KEY"], sep='\t')
+except:
+	print("Check your input file.")
+	raise
+
+participant_id = f_input_list['participant_id'].tolist()
+bam_path = f_input_list['bam']
+
+###################################################################################################
+onstart:
+	import pprint
+	# create dir for log on cluster mode
+	shell("mkdir -p clusterlog/")
+	print("")
+	print("----------------------------------------------------------------------------------------------------")
+	print("snakeSV Pipeline v%s by Ricardo A. Vialle (ricardovialle@gmail.com, https://github.com/RajLabMSSM/snakeSV)" % version)
+	print("----------------------------------------------------------------------------------------------------")
+	print("Parameters:")
+	for k,v in sorted(config.items()):
+		print(" - " + k + ": ", end='')
+		pprint.pprint(v)
+	print("----------------------------------------------------------------------------------------------------")
+	if( "SV_PANEL" in config ):
+		print("Custom SV panel is set. Variants from files below will be added for genotyping.")
+		print(config["SV_PANEL"])
+	print("----------------------------------------------------------------------------------------------------")
+	print("")
+
+def onend(msg, log):
+	import os
+	#Remove clusterlog folder (if exists and empty)
+	shell('if [ -d "clusterlog/" ]; then if [ ! "$(ls -A clusterlog/)" ]; then rm -rf clusterlog/; fi; fi')
+	shell('mkdir -p {OUT_FOLDER}/log')
+	from datetime import datetime
+	dtnow = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+	log_file = OUT_FOLDER + "/log/snakesv_" + dtnow + ".log"
+	shell("cp {log} {log_file}")
+	print("")
+	print("----------------------------------------------------------------------------------------------------")
+	print(msg)
+	print("Please check the main log file for more information:")
+	print("\t" + os.path.abspath(log_file))
+	print("For a detailed running output report with execution time for each rule run againg with the flag --report")
+	print("----------------------------------------------------------------------------------------------------")
+	print("")
+
+onsuccess:
+	onend("snakeSV finished successfuly", log)
+
+onerror:
+	onend("An error has occured.", log)
+
+###################################################################################################
+## Rules
+################################################################################################### 
+include: "rules/preprocess.smk"
+include: "rules/qc.smk"
+include: "rules/other.smk"
+include: "rules/genotype.smk"
+include: "rules/annotation.smk"
+include: "rules/benchmark.smk"
+
+###################################################################################################
+## SV discovery tools
+###################################################################################################
+# Include all selected tools
+for tool in config["TOOLS"]:
+	include: ("rules/tools/"+tool+".smk")
+	
+################################################################################################### 
+rule all:
+	input:
+		expand(OUT_FOLDER + "/qc/{sample}/{sample}.metrics.insert_size_metrics", sample=participant_id),
+		expand(OUT_FOLDER + "/qc/{sample}/{sample}.flagstat", sample=participant_id),
+		expand(OUT_FOLDER + "/qc/{sample}/{sample}.stats", sample=participant_id),
+		expand(OUT_FOLDER + "/qc/{sample}/{sample}.wgs", sample=participant_id),
+		expand(OUT_FOLDER + "/qc/{sample}/{sample}.complexity", sample=participant_id),
+		OUT_FOLDER + "/qc/multiqc_report.html",
+		expand(OUT_FOLDER + "/somalier_extracted/{sample}.somalier", sample=participant_id),
+		OUT_FOLDER + "/somalier/somalier.somalier-ancestry.html",
+		expand(OUT_FOLDER + "/sv_discovery/{tool}/{sample}/{sample}.{tool}.vcf.gz.tbi", sample=participant_id, tool=config["TOOLS"]),
+		expand(OUT_FOLDER + "/sv_discovery/merged/{sample}/{sample}.vcf.gz.tbi", sample=participant_id),
+		OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz.tbi",
+		expand(OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz.tbi", sample=participant_id),
+		#expand(OUT_FOLDER + "/sv_genotyping/{sample}/bench/giab_report.txt", sample=participant_id),
+		#expand(OUT_FOLDER + "/sv_discovery/{tool}/{sample}/bench/giab_report.txt", sample=participant_id, tool=config["TOOLS"]),
+		OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz.tbi",
+		OUT_FOLDER + "/merged_cohort/gt_merged.annot.vcf.gz.tbi"
+################################################################################################### 
