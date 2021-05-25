@@ -2,13 +2,13 @@
 
 Ricardo A. Vialle (ricardovialle@gmail.com)
 
-================
+---
 
 *snakeSV* is an integrated pipeline in Snakemake for complete SV analysis. The pipeline includes pre- and post-processing steps to deal with large scale studies. The input data of the pipeline consists of BAM files for each sample, a reference genome file (.FASTA) and a configuration file in yaml format. Additionally, users can also input custom annotation files in BED format for SV interpretation and VCF files with structural variants to be genotyped in addition to the discovery set.
 
 ![Pipeline Schematic](docs/Pipeline_Schema.png "Pipeline Schematic")
 
-================
+---
 
 ### Requirements:
 
@@ -33,7 +33,7 @@ conda config --add channels conda-forge
 conda config --add channels bioconda
 ```
 
-#### 3-Snakemake:
+#### 2-Snakemake:
 
 Install Snakemake:
 ```
@@ -46,7 +46,7 @@ conda create -n snakemake_env snakemake
 conda activate snakemake_env # Command to activate the environment. To deactivate use "conda deactivate"
 ```
 
-#### 4-snakeSV:
+#### 3-snakeSV:
 
 To clone the repository and install the required tools and download required supporting data use the following commands:
 ```
@@ -54,7 +54,7 @@ git clone https://github.com/RajLabMSSM/snakeSV.git
 cd snakeSV
 ```
 
-#### 5-Resources:
+#### 4-Resources:
 
 This repository comes with files required for running Delly, Smoove and somalier. 
 
@@ -74,7 +74,7 @@ Decompress it in snakeSV folder (a folder named resources should be created)
 tar -zxvf resources.tar.gz
 ```
 
-#### 6-Tools:
+#### 5-Tools:
 
 All other tools and dependencies are installed in their own environment automatically on the first run (with `--use-conda` parameter active). 
 
@@ -82,14 +82,16 @@ All other tools and dependencies are installed in their own environment automati
 snakemake --configfile config/config.yaml --use-conda --conda-create-envs-only --cores 2
 ```
 
-================
+---
 
 ### Run:
 
 #### Example data:
 
-An example test run can be performed using the whole-genome data from the Ashkenazi Jewish trio (HG002-son, HG003-father, and HG004-mother) from the The Personal Genome Project. Sequencing for this data was performed using the Illumina platform with PCR-free and 150 bp pair-ended and data was downsampled to ~30x to match the expected production from most available studies (e.g. 1000 genome samples). Links for downloading raw files for each sample are available via the Human Pangenome Reference Consortium (https://github.com/human-pangenomics/HG002_Data_Freeze_v1.0) in the following links: [HG002](https://s3-us-west-2.amazonaws.com/human-pangenomics/index.html?prefix=NHGRI_UCSC_panel/HG002/hpp_HG002_NA24385_son_v1/ILMN/downsampled/) |
-[HG003 and HG004] (https://s3-us-west-2.amazonaws.com/human-pangenomics/index.html?prefix=NHGRI_UCSC_panel/HG002/hpp_HG002_NA24385_son_v1/parents/ILMN/downsampled/)
+An example test run can be performed using the whole-genome data from the Ashkenazi Jewish trio (HG002-son, HG003-father, and HG004-mother) from the The Personal Genome Project. Sequencing for this data was performed using the Illumina platform with PCR-free and 150 bp pair-ended and data was downsampled to ~30x to match the expected production from most available studies (e.g. 1000 genome samples). Links for downloading raw files for each sample are available via the Human Pangenome Reference Consortium (https://github.com/human-pangenomics/HG002_Data_Freeze_v1.0) in the following links: 
+
+* [HG002](https://s3-us-west-2.amazonaws.com/human-pangenomics/index.html?prefix=NHGRI_UCSC_panel/HG002/hpp_HG002_NA24385_son_v1/ILMN/downsampled/)
+* [HG003 and HG004](https://s3-us-west-2.amazonaws.com/human-pangenomics/index.html?prefix=NHGRI_UCSC_panel/HG002/hpp_HG002_NA24385_son_v1/parents/ILMN/downsampled/)
 
 Download and alignment of these samples can be performed using the following script (files will saved at `data` folder):
 ```
@@ -158,7 +160,7 @@ After having all the required data done, perform the analysis as follows:
 snakemake --configfile config/config.yaml -pr --cores 2 --use-conda
 ```
 
-================
+---
 
 ### HPC run:
 
