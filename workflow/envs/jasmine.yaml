@@ -1,0 +1,6 @@
+channels:
+  - bioconda
+dependencies:
+  - jasminesv=1.1.0
+  - bcftools=1.9
+  - samtools=1.9

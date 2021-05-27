@@ -8,7 +8,7 @@ rule somalier_extract:
 	output:
 		OUT_FOLDER + "/somalier_extracted/{sample}.somalier"
 	params:
-		ref = REF_BUILD		
+		ref = REF_BUILD
 	shell:
 		"{LIB_DIR}/somalier extract -d {OUT_FOLDER}/somalier_extracted/ \
 			--sites {LIB_DIR}/somalier_sites/sites.GRCh{params.ref}.vcf.gz \
@@ -20,7 +20,7 @@ rule somalier:
 	output:
 		OUT_FOLDER + "/somalier/somalier.somalier-ancestry.html"
 	params:
-		ref = REF_BUILD		
+		ref = REF_BUILD
 	shell:
 		"{LIB_DIR}/somalier relate -o {OUT_FOLDER}/somalier/somalier {input}; "
 		"{LIB_DIR}/somalier ancestry --n-pcs=20 -o {OUT_FOLDER}/somalier/ \

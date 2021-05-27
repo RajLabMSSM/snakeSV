@@ -69,7 +69,7 @@ rule sexCheck:
 	conda:
 		srcdir("../envs/sambamba.yaml")
 	params:
-		script = "workflow/scripts/sexCheck.sh",
+		script = SNAKEDIR + "/scripts/sexCheck.sh",
 		DICT = config["DICT"]
 	shell:
 		"sh {params.script} {wildcards.sample} {input.bam} {params.DICT} {OUT_FOLDER}/qc/{wildcards.sample}"
@@ -83,7 +83,7 @@ rule aneuploidyCheck:
 	conda:
 		srcdir("../envs/sambamba.yaml")
 	params:
-		script = "workflow/scripts/chrCopyCount.sh",
+		script = SNAKEDIR + "/scripts/chrCopyCount.sh",
 		DICT = config["DICT"],
 		NMASK = config["NMASK"]
 	shell:

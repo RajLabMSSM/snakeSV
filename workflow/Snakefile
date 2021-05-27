@@ -1,36 +1,53 @@
 import os
 import glob
 import yaml
-import pandas as pd
 from snakemake.io import *
 
-version="0.1"
+version="0.2"
 
 ###################################################################################################
 ## Check input
 ###################################################################################################
+if( "workdir" not in config ):
+    print("No working directory defined on the configuration file.")
+    print("Using current folder (please make sure paths for supporting files are reachable).")
+    workdir: os.getcwd()
+else:
+	workdir: config["workdir"]
+
+if( "OUT_FOLDER" not in config ):
+    print("No output folder defined on the configuration file.")
+    OUT_FOLDER = os.getcwd() + "/results_snakesv/"
+    print("Results will saved at:" + OUT_FOLDER)
+else:
+	OUT_FOLDER = config["OUT_FOLDER"]
+
+if( "TMP_DIR" not in config ):
+    TMP_DIR = "/tmp/"
+else:
+	TMP_DIR = config["TMP_DIR"]
+
+# Required files
 if( "SAMPLE_KEY" not in config ):
     sys.exit("No samples defined on the configuration file")
-if( "OUT_FOLDER" not in config ):
-    sys.exit("No output folder defined on the configuration file")
 if( "TOOLS" not in config ):
     sys.exit("No tools defined on the configuration file")
 if( "REFERENCE_FASTA" not in config ):
     sys.exit("No reference fasta defined on the configuration file")
 if( "REF_BUILD" not in config ):
     sys.exit("No reference build defined on the configuration file")
-if( "TMP_DIR" not in config ):
-    sys.exit("No tmp folder defined on the configuration file")
 
-OUT_FOLDER = config["OUT_FOLDER"]
 TOOLS = config["TOOLS"]
 REFERENCE_FASTA = config["REFERENCE_FASTA"]
 REF_BUILD = config["REF_BUILD"]
 TMP_DIR = config["TMP_DIR"]
-LIB_DIR = config["LIB_DIR"]
+
+# Set snakemake main workdir variable. 
+SNAKEDIR = os.path.dirname(workflow.snakefile) + "/"
+LIB_DIR = SNAKEDIR + config["LIB_DIR"]
 
 ## Check sample key file
-import os, glob, ntpath, math, shutil, yaml, pandas
+import ntpath, math, shutil, pandas
 
 try:
 	f_input_list = pandas.read_csv(config["SAMPLE_KEY"], sep='\t')
@@ -111,8 +128,8 @@ rule all:
 		expand(OUT_FOLDER + "/qc/{sample}/{sample}.wgs", sample=participant_id),
 		expand(OUT_FOLDER + "/qc/{sample}/{sample}.complexity", sample=participant_id),
 		OUT_FOLDER + "/qc/multiqc_report.html",
-		expand(OUT_FOLDER + "/somalier_extracted/{sample}.somalier", sample=participant_id),
-		OUT_FOLDER + "/somalier/somalier.somalier-ancestry.html",
+		#expand(OUT_FOLDER + "/somalier_extracted/{sample}.somalier", sample=participant_id),
+		#OUT_FOLDER + "/somalier/somalier.somalier-ancestry.html",
 		expand(OUT_FOLDER + "/sv_discovery/{tool}/{sample}/{sample}.{tool}.vcf.gz.tbi", sample=participant_id, tool=config["TOOLS"]),
 		expand(OUT_FOLDER + "/sv_discovery/merged/{sample}/{sample}.vcf.gz.tbi", sample=participant_id),
 		OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz.tbi",

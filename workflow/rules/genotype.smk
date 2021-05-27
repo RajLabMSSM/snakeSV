@@ -7,7 +7,7 @@ rule decompress_for_merging:
 	output:
 		vcf = OUT_FOLDER + "/sv_discovery/merged/{sample}/{sample}.{tool}.vcf"
 	shell:	
-		"zcat {input.vcf} > {output.vcf}"
+		"zcat {input.vcf} > {output.vcf}; "
 
 rule merge_tools:
 	input:
@@ -20,7 +20,7 @@ rule merge_tools:
 		"../envs/survivor.yaml"
 	params:
 		vcf_list = OUT_FOLDER + "/sv_discovery/merged/{sample}/vcf.list",
-		breakpoint_dist = "500",
+		breakpoint_dist = "100",
 		min_num_calls = "1",
 		use_type = "1",
 		use_strand = "1",
@@ -65,7 +65,7 @@ rule merge_samples_02:
 		"../envs/survivor.yaml"
 	params:
 		vcf_list = OUT_FOLDER + "/merged_cohort/vcf.list",
-		breakpoint_dist = "500",
+		breakpoint_dist = "100",
 		min_num_calls = "1",
 		use_type = "1",
 		use_strand = "1",
@@ -83,12 +83,29 @@ rule merge_samples_02:
 		"bcftools sort -Oz -o {output.vcfgz} {output.vcf}; "
 		"tabix -p vcf {output.vcfgz}; "
 
+# rule merge_samples_02:
+# 	input:
+# 		vcf_list = OUT_FOLDER + "/merged_cohort/vcf.list"
+# 	output:
+# 		vcf = OUT_FOLDER + "/merged_cohort/raw_merged.vcf",
+# 		vcfgz = OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz",
+# 		tbi = OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz.tbi"
+# 	conda:
+# 		"../envs/jasmine.yaml"
+# 	params:
+# 		vcf_list = OUT_FOLDER + "/merged_cohort/vcf.list",
+# 	shell:
+# 		"jasmine file_list={params.vcf_list} out_file={output.vcf}; " 
+# 		"bcftools sort -Oz -o {output.vcfgz} {output.vcf}; "
+# 		"tabix -p vcf {output.vcfgz}; "
+
 rule genotype:
 	input:
 		bam = OUT_FOLDER + "/input/{sample}.bam",
 		gvcf = OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz"
 	output:
-		vcf = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz",
+		vcf = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf",
+		vcfgz = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz",
 		tbi = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz.tbi"
 	conda:
 		"../envs/graphtyper.yaml"
@@ -102,19 +119,41 @@ rule genotype:
 			--region=$chr \
 			--output={params.outdir}; \
 		done; "
-		"graphtyper vcf_concatenate --no_sort {params.outdir}/*/*.vcf.gz | bgzip -c > {output.vcf};"
-		"tabix -p vcf {output.vcf}"
+		"graphtyper vcf_concatenate --no_sort {params.outdir}/*/*.vcf.gz | \
+			grep -E -v \"BREAKPOINT|COVERAGE\" > {output.vcf};" 
+		"bgzip -c {output.vcf} > {output.vcfgz}; "
+		"tabix -p vcf {output.vcfgz}; "
+
+# rule merge_genotyped_samples:
+# 	input:
+# 		vcf = expand(OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz", sample=participant_id)
+# 	output:
+# 		vcf = OUT_FOLDER + "/merged_cohort/gt_merged.vcf",
+# 		vcfgz = OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz",
+# 		tbi = OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz.tbi"
+# 	conda:
+# 		"../envs/graphtyper.yaml"		
+# 	shell:
+# 		"graphtyper vcf_merge {input.vcf} --sv | grep -E -v \"BREAKPOINT|COVERAGE\" > {output.vcf}; "
+# 		"bcftools sort -Oz -o {output.vcfgz} {output.vcf}; "
+# 		"tabix -p vcf {output.vcfgz}; "
 
 rule merge_genotyped_samples:
 	input:
-		vcf = expand(OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz", sample=participant_id)
+		vcf = expand(OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf", sample=participant_id)
 	output:
+		vcf_list = OUT_FOLDER + "/merged_cohort/gt_vcf.list",
 		vcf = OUT_FOLDER + "/merged_cohort/gt_merged.vcf",
 		vcfgz = OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz",
 		tbi = OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz.tbi"
 	conda:
-		"../envs/graphtyper.yaml"		
+		"../envs/jasmine.yaml"
 	shell:
-		"graphtyper vcf_merge {input.vcf} --sv | grep -E -v \"BREAKPOINT|COVERAGE\" > {output.vcf}; "
+		"ls {input.vcf} > {output.vcf_list}; "
+		"if [[ $(wc -l  {output.vcf_list} | cut -d' ' -f1) -gt 1 ]]; then \
+			jasmine --allow_intrasample file_list={output.vcf_list} out_file={output.vcf}; \
+		 else \
+		     cp {input.vcf} {output.vcf}; \
+		 fi; "
 		"bcftools sort -Oz -o {output.vcfgz} {output.vcf}; "
 		"tabix -p vcf {output.vcfgz}; "

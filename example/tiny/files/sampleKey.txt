@@ -1,0 +1,2 @@
+participant_id	bam
+HG002_tiny	tiny.bam

@@ -8,12 +8,12 @@ rule smoove:
 	params:
 		exclude = LIB_DIR + "/smoove_regions/GRCh" + REF_BUILD + ".exclude.bed"
 	conda:
-		"../../envs/smoove.yaml"		
+		"../../envs/smoove.yaml"
 	shell:
 		"smoove call --outdir {OUT_FOLDER}/sv_discovery/smoove/ \
 			--exclude {params.exclude} \
 			--name {wildcards.sample} \
 			--fasta {REFERENCE_FASTA} --genotype {input.bam}; "
-		"bcftools sort -Oz -o {output.vcf} {OUT_FOLDER}/sv_discovery/smoove/{wildcards.sample}-smoove.genotyped.vcf.gz; "
+		"zgrep -v 'SVTYPE=BND' {OUT_FOLDER}/sv_discovery/smoove/{wildcards.sample}-smoove.genotyped.vcf.gz | \
+			bcftools sort -Oz -o {output.vcf}; "
 		"tabix -p vcf {output.vcf}; "
-

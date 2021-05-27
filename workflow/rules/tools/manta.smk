@@ -16,5 +16,7 @@ rule manta:
 			--referenceFasta {REFERENCE_FASTA} \
 			--runDir {OUT_FOLDER}/sv_discovery/manta/{wildcards.sample}/; "
 		"{OUT_FOLDER}/sv_discovery/manta/{wildcards.sample}/runWorkflow.py; "
-		"bcftools sort -Oz -o {output.vcf} {OUT_FOLDER}/sv_discovery/manta/{wildcards.sample}/results/variants/diploidSV.vcf.gz; "
+		"zgrep -v 'SVTYPE=BND' {OUT_FOLDER}/sv_discovery/manta/{wildcards.sample}/results/variants/diploidSV.vcf.gz | \
+			bcftools sort -Oz -o {output.vcf}; "
 		"tabix -p vcf {output.vcf}; "
+		
