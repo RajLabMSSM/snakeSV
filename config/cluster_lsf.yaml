@@ -1,11 +1,22 @@
+### snakeSV cluster config 
+
 __default__:
   project: acc_ad-omics
-  queue: express
+  queue: premium
   cores: 1
   nodes: 1
   mem: 16000
-  time: '12:00'
+  time: '144:00'
   name: $(basename $(pwd)).{rule}.{wildcards}
   output: clusterlog/{rule}.{wildcards}.stdout
   error: clusterlog/{rule}.{wildcards}.stderr
 
+delly:
+  queue: premium
+  time: '144:00'
+
+complexity:
+  mem: 32000
+
+genotype_01:
+  mem: 64000

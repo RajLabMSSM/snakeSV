@@ -1,7 +1,7 @@
 # All paths set on this file are relative to the workdir (if not absolute). 
 workdir: "/hpc/users/viallr01/ad-omics/ricardo/MyRepo/snakeSV/"
 
-OUT_FOLDER: "results1"
+OUT_FOLDER: "results_GIAB"
 SAMPLE_KEY: "example/sampleKey.txt"
 
 TOOLS: 
@@ -18,7 +18,7 @@ ANNOTATION_BED:
 
 # Custom SVs for genotyping (optional)
 SV_PANEL: 
-  - "data/sv_panel/hg002/variants.22.vcf"
+  - "data/sv_panel/hg002/variants.vcf"
 
 # Reference genome files
 REFERENCE_FASTA: "data/ref/human_g1k_v37.fasta"
@@ -36,3 +36,6 @@ TMP_DIR: "~/ad-omics/ricardo/tmp/"
 # This path is relative to the Snakefile folder. 
 # No need to change in most of the cases.
 LIB_DIR: "../resources/"
+
+
+

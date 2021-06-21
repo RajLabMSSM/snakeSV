@@ -58,7 +58,7 @@ rule complexity:
 	conda:
 		srcdir("../envs/picard.yaml")
 	shell:
-		"picard EstimateLibraryComplexity TMP_DIR={TMP_DIR} I={input.bam} O={output} VALIDATION_STRINGENCY=SILENT"
+		"picard -Xms8g -Xmx16g EstimateLibraryComplexity TMP_DIR={TMP_DIR} I={input.bam} O={output} VALIDATION_STRINGENCY=SILENT"
 
 rule sexCheck:
 	input:

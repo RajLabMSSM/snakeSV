@@ -1,5 +1,5 @@
 channels:
   - bioconda
 dependencies:
-  - svtk=0.0.20190615
-  - bcftools=1.12
+  - svtk
+  - bcftools=1.9

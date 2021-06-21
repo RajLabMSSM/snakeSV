@@ -1,5 +1,5 @@
 ###################################################################################################
-## Other
+## Annotations
 ###################################################################################################
 if( "ANNOTATION_BED" not in config ):
 	rule annotate_bed:
@@ -26,18 +26,36 @@ else:
 			vcfgz = OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz",
 			tbi = OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz.tbi"
 		output:
+			tmp = temp(directory(OUT_FOLDER + "/merged_cohort/tmp")),
 			vcf = OUT_FOLDER + "/merged_cohort/gt_merged.annot.vcf.gz",
 			tbi = OUT_FOLDER + "/merged_cohort/gt_merged.annot.vcf.gz.tbi"
 		conda:
-			"../envs/svtk.yaml"		
+			"../envs/svtk.yaml"
 		params:
 			bed = config["ANNOTATION_BED"],
 			bed_cat = OUT_FOLDER + "/merged_cohort/annot.bed",
-			gencode = config["GENCODE_GTF"]
+			gencode = config["GENCODE_GTF"],
+			gencode_copy = OUT_FOLDER + "/merged_cohort/tmp/gencode.gtf",
+			header = OUT_FOLDER + "/merged_cohort/tmp/header",
+			variants = OUT_FOLDER + "/merged_cohort/tmp/variants"
 		shell:
 			"cat {params.bed} > {params.bed_cat}; "
-			"svtk annotate \
-				--gencode {params.gencode} \
-				--noncoding {params.bed_cat} \
-				{input.vcfgz} {output.vcf}; "
+			"mkdir -p {output.tmp}; "
+			"cp {params.gencode} {params.gencode_copy}; "
+			#grab the header
+			"head -n 10000 {input.vcf} | grep '^#' > {params.header}; "
+			#grab the non header lines
+			"grep -v '^#' {input.vcf} > {params.variants}; "
+			#split into chunks with 100 lines
+			"cd {output.tmp}; "
+			"split -l 3000 variants; "
+			#reattach the header to each and clean up
+			"for i in x*; do "
+				"cat header $i > $i.vcf && rm -f $i;"
+				"svtk annotate \
+					--gencode gencode.gtf \
+					--noncoding ../annot.bed \
+					$i.vcf $i.annot.vcf; "
+			"done; "
+			"bcftools concat $i.annot.vcf -Oz -o {output.vcf}; "
 			"tabix -p vcf {output.vcf}; "

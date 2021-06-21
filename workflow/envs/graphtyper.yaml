@@ -4,3 +4,4 @@ dependencies:
   - graphtyper=2.7.1
   - survivor=1.0.7
   - bcftools=1.12
+  - samtools=1.12

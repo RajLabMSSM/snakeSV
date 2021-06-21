@@ -3,7 +3,7 @@ import glob
 import yaml
 from snakemake.io import *
 
-version="0.2"
+version="0.3"
 
 ###################################################################################################
 ## Check input
@@ -64,18 +64,18 @@ onstart:
 	# create dir for log on cluster mode
 	shell("mkdir -p clusterlog/")
 	print("")
-	print("----------------------------------------------------------------------------------------------------")
+	print("----------------------------------------------------------------------------------------------------------")
 	print("snakeSV Pipeline v%s by Ricardo A. Vialle (ricardovialle@gmail.com, https://github.com/RajLabMSSM/snakeSV)" % version)
-	print("----------------------------------------------------------------------------------------------------")
+	print("----------------------------------------------------------------------------------------------------------")
 	print("Parameters:")
 	for k,v in sorted(config.items()):
 		print(" - " + k + ": ", end='')
 		pprint.pprint(v)
-	print("----------------------------------------------------------------------------------------------------")
+	print("----------------------------------------------------------------------------------------------------------")
 	if( "SV_PANEL" in config ):
 		print("Custom SV panel is set. Variants from files below will be added for genotyping.")
 		print(config["SV_PANEL"])
-	print("----------------------------------------------------------------------------------------------------")
+	print("----------------------------------------------------------------------------------------------------------")
 	print("")
 
 def onend(msg, log):
@@ -88,12 +88,12 @@ def onend(msg, log):
 	log_file = OUT_FOLDER + "/log/snakesv_" + dtnow + ".log"
 	shell("cp {log} {log_file}")
 	print("")
-	print("----------------------------------------------------------------------------------------------------")
+	print("----------------------------------------------------------------------------------------------------------")
 	print(msg)
 	print("Please check the main log file for more information:")
 	print("\t" + os.path.abspath(log_file))
 	print("For a detailed running output report with execution time for each rule run againg with the flag --report")
-	print("----------------------------------------------------------------------------------------------------")
+	print("----------------------------------------------------------------------------------------------------------")
 	print("")
 
 onsuccess:
@@ -122,6 +122,7 @@ for tool in config["TOOLS"]:
 ################################################################################################### 
 rule all:
 	input:
+		expand(OUT_FOLDER + "/input/{sample}.bam", sample=participant_id),
 		expand(OUT_FOLDER + "/qc/{sample}/{sample}.metrics.insert_size_metrics", sample=participant_id),
 		expand(OUT_FOLDER + "/qc/{sample}/{sample}.flagstat", sample=participant_id),
 		expand(OUT_FOLDER + "/qc/{sample}/{sample}.stats", sample=participant_id),
@@ -131,11 +132,13 @@ rule all:
 		#expand(OUT_FOLDER + "/somalier_extracted/{sample}.somalier", sample=participant_id),
 		#OUT_FOLDER + "/somalier/somalier.somalier-ancestry.html",
 		expand(OUT_FOLDER + "/sv_discovery/{tool}/{sample}/{sample}.{tool}.vcf.gz.tbi", sample=participant_id, tool=config["TOOLS"]),
+		#expand(OUT_FOLDER + "/sv_discovery/{tool}/{sample}/{sample}.{tool}.gt.vcf.gz.tbi", sample=participant_id, tool=config["TOOLS"]),
 		expand(OUT_FOLDER + "/sv_discovery/merged/{sample}/{sample}.vcf.gz.tbi", sample=participant_id),
 		OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz.tbi",
 		expand(OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz.tbi", sample=participant_id),
 		#expand(OUT_FOLDER + "/sv_genotyping/{sample}/bench/giab_report.txt", sample=participant_id),
 		#expand(OUT_FOLDER + "/sv_discovery/{tool}/{sample}/bench/giab_report.txt", sample=participant_id, tool=config["TOOLS"]),
+		#expand(OUT_FOLDER + "/sv_discovery/{tool}/{sample}/bench_gt/giab_report.txt", sample=participant_id, tool=config["TOOLS"]),
 		OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz.tbi",
 		OUT_FOLDER + "/merged_cohort/gt_merged.annot.vcf.gz.tbi"
 ################################################################################################### 

@@ -65,6 +65,7 @@ snakeSV --configfile $(dirname $(which snakeSV))/../opt/snakeSV/example/tiny/con
   --config workdir="$(dirname $(which snakeSV))/../opt/snakeSV/example/tiny/files/" \
   --cores 1 --use-conda -p
 ```
+
 ---
 
 #### Inputs:
@@ -111,6 +112,7 @@ An example test run can be performed using the whole-genome data from the Ashken
 * [HG003 and HG004](https://s3-us-west-2.amazonaws.com/human-pangenomics/index.html?prefix=NHGRI_UCSC_panel/HG002/hpp_HG002_NA24385_son_v1/parents/ILMN/downsampled/)
 
 You can use some scripts included in the repository to assist obtaining the data. First clone the repo using the following command line:
+
 ```
 git clone https://github.com/RajLabMSSM/snakeSV.git
 cd snakeSV
