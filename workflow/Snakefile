@@ -122,23 +122,23 @@ for tool in config["TOOLS"]:
 ################################################################################################### 
 rule all:
 	input:
-		expand(OUT_FOLDER + "/input/{sample}.bam", sample=participant_id),
-		expand(OUT_FOLDER + "/qc/{sample}/{sample}.metrics.insert_size_metrics", sample=participant_id),
-		expand(OUT_FOLDER + "/qc/{sample}/{sample}.flagstat", sample=participant_id),
-		expand(OUT_FOLDER + "/qc/{sample}/{sample}.stats", sample=participant_id),
-		expand(OUT_FOLDER + "/qc/{sample}/{sample}.wgs", sample=participant_id),
-		expand(OUT_FOLDER + "/qc/{sample}/{sample}.complexity", sample=participant_id),
-		OUT_FOLDER + "/qc/multiqc_report.html",
+		#expand(OUT_FOLDER + "/input/{sample}.bam", sample=participant_id),
+		#expand(OUT_FOLDER + "/qc/{sample}/{sample}.metrics.insert_size_metrics", sample=participant_id),
+		#expand(OUT_FOLDER + "/qc/{sample}/{sample}.flagstat", sample=participant_id),
+		#expand(OUT_FOLDER + "/qc/{sample}/{sample}.stats", sample=participant_id),
+		#expand(OUT_FOLDER + "/qc/{sample}/{sample}.wgs", sample=participant_id),
+		#expand(OUT_FOLDER + "/qc/{sample}/{sample}.complexity", sample=participant_id),
+		OUT_FOLDER + "/qc/multiqc_report.html", ## Sample QC report
 		#expand(OUT_FOLDER + "/somalier_extracted/{sample}.somalier", sample=participant_id),
 		#OUT_FOLDER + "/somalier/somalier.somalier-ancestry.html",
-		expand(OUT_FOLDER + "/sv_discovery/{tool}/{sample}/{sample}.{tool}.vcf.gz.tbi", sample=participant_id, tool=config["TOOLS"]),
+		#expand(OUT_FOLDER + "/sv_discovery/{tool}/{sample}/{sample}.{tool}.vcf.gz.tbi", sample=participant_id, tool=config["TOOLS"]),
 		#expand(OUT_FOLDER + "/sv_discovery/{tool}/{sample}/{sample}.{tool}.gt.vcf.gz.tbi", sample=participant_id, tool=config["TOOLS"]),
-		expand(OUT_FOLDER + "/sv_discovery/merged/{sample}/{sample}.vcf.gz.tbi", sample=participant_id),
-		OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz.tbi",
-		expand(OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz.tbi", sample=participant_id),
+		#expand(OUT_FOLDER + "/sv_discovery/merged/{sample}/{sample}.vcf.gz.tbi", sample=participant_id),
+		#OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz.tbi",
+		#expand(OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz.tbi", sample=participant_id),
 		#expand(OUT_FOLDER + "/sv_genotyping/{sample}/bench/giab_report.txt", sample=participant_id),
 		#expand(OUT_FOLDER + "/sv_discovery/{tool}/{sample}/bench/giab_report.txt", sample=participant_id, tool=config["TOOLS"]),
 		#expand(OUT_FOLDER + "/sv_discovery/{tool}/{sample}/bench_gt/giab_report.txt", sample=participant_id, tool=config["TOOLS"]),
-		OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz.tbi",
-		OUT_FOLDER + "/merged_cohort/gt_merged.annot.vcf.gz.tbi"
+		OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz.tbi"
+		#OUT_FOLDER + "/merged_cohort/gt_merged.annot.vcf.gz.tbi"
 ################################################################################################### 
