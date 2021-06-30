@@ -2,7 +2,7 @@
 workdir: "/hpc/users/viallr01/ad-omics/ricardo/MyRepo/snakeSV/"
 
 OUT_FOLDER: "results_GIAB"
-SAMPLE_KEY: "example/sampleKey.txt"
+SAMPLE_KEY: "example/hg002/sampleKey.txt"
 
 TOOLS: 
   - "manta"

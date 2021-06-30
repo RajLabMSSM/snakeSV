@@ -139,6 +139,6 @@ rule all:
 		#expand(OUT_FOLDER + "/sv_genotyping/{sample}/bench/giab_report.txt", sample=participant_id),
 		#expand(OUT_FOLDER + "/sv_discovery/{tool}/{sample}/bench/giab_report.txt", sample=participant_id, tool=config["TOOLS"]),
 		#expand(OUT_FOLDER + "/sv_discovery/{tool}/{sample}/bench_gt/giab_report.txt", sample=participant_id, tool=config["TOOLS"]),
-		OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz.tbi"
-		#OUT_FOLDER + "/merged_cohort/gt_merged.annot.vcf.gz.tbi"
+		OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz.tbi",
+		OUT_FOLDER + "/merged_cohort/gt_merged.annot.vcf.gz.tbi"
 ################################################################################################### 
