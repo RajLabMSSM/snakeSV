@@ -7,7 +7,7 @@ rule delly_cnv:
 		vcf = OUT_FOLDER + "/sv_discovery/delly_cnv/{sample}/{sample}.delly_cnv.vcf.gz",
 		tbi = OUT_FOLDER + "/sv_discovery/delly_cnv/{sample}/{sample}.delly_cnv.vcf.gz.tbi"
 	conda:
-		"../../envs/delly.yaml"
+		SNAKEDIR + "envs/delly.yaml"
 	params:
 		delly_map = LIB_DIR + "/delly_maps/Homo_sapiens.GRCh" + REF_BUILD + ".dna.primary_assembly.fa.r101.s501.blacklist.gz",
 		bcf = OUT_FOLDER + "/sv_discovery/delly_cnv/{sample}/{sample}.delly_cnv.bcf"

@@ -1,20 +1,19 @@
 ###################################################################################################
-## Benchmarking
+## Benchmarking against GiaB
 ###################################################################################################
+# Deactivated in the pipeline.
 rule benchmark_raw:
 	input:
 		vcf = OUT_FOLDER + "/sv_discovery/{tool}/{sample}/{sample}.{tool}.vcf.gz"
 	output:
 		OUT_FOLDER + "/sv_discovery/{tool}/{sample}/bench/giab_report.txt"
 	conda:
-		"../envs/truvari.yaml"		
+		SNAKEDIR + "envs/truvari.yaml"		
 	params:
 		base = "~/ad-omics/ricardo/Data/GIAB/HG002_SV_benchmark/HG002_SVs_Tier1_v0.6.vcf.gz",
 		bed = "~/ad-omics/ricardo/Data/GIAB/HG002_SV_benchmark/HG002_SVs_Tier1_v0.6.bed",
 		ref = REFERENCE_FASTA,
 		outdir = OUT_FOLDER + "/sv_discovery/{tool}/{sample}/bench/"
-	conda:
-		"../envs/truvari.yaml"
 	shell:
 		"rm -rf {params.outdir}; "
 		"truvari bench \
@@ -39,7 +38,7 @@ rule benchmark_raw_gt:
 		ref = REFERENCE_FASTA,
 		outdir = OUT_FOLDER + "/sv_discovery/{tool}/{sample}/bench_gt/"
 	conda:
-		"../envs/truvari.yaml"
+		SNAKEDIR + "envs/truvari.yaml"
 	shell:
 		"rm -rf {params.outdir}; "
 		"zcat {input.vcf} | grep -E \"^#|AGGREGATED\" | bcftools sort -Oz -o {input.vcf}.filt.vcf.gz; "
@@ -54,7 +53,6 @@ rule benchmark_raw_gt:
  			-r 2000 \
  			--giabreport; "
 
-
 rule benchmark_gt:
 	input:
 		vcf = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz"
@@ -66,7 +64,7 @@ rule benchmark_gt:
 		ref = REFERENCE_FASTA,
 		outdir = OUT_FOLDER + "/sv_genotyping/{sample}/bench/"
 	conda:
-		"../envs/truvari.yaml"
+		SNAKEDIR + "envs/truvari.yaml"
 	shell:
 		"rm -rf {params.outdir}; "
 		#"zcat {input.vcf} | grep -E -v \"BREAKPOINT|COVERAGE\" | bcftools sort -Oz -o {input.vcf}.filt.vcf.gz; "

@@ -73,35 +73,35 @@ rule complexity:
 rule sexCheck:
 	input:
 		bam = OUT_FOLDER + "/input/{sample}.bam",
-		bai = OUT_FOLDER + "/input/{sample}.bam.bai"
+		bai = OUT_FOLDER + "/input/{sample}.bam.bai",
+		DICT = OUT_FOLDER + "/ref/" + config["REF_BUILD"] + ".dict"
 	output:
 		OUT_FOLDER + "/qc/{sample}/{sample}.sexCheck"
 	params:
 		script = SNAKEDIR + "/scripts/sexCheck.sh",
-		DICT = config["DICT"]
 	log: 
 		OUT_FOLDER + "/log/qc/{sample}/sexCheck.log"		
 	conda:
 		SNAKEDIR + "envs/sambamba.yaml"
 	shell:
-		"sh {params.script} {wildcards.sample} {input.bam} {params.DICT} {OUT_FOLDER}/qc/{wildcards.sample} > {log} 2>&1"
+		"sh {params.script} {wildcards.sample} {input.bam} {input.DICT} {OUT_FOLDER}/qc/{wildcards.sample} > {log} 2>&1"
 
-rule aneuploidyCheck:
-	input:
-		bam = OUT_FOLDER + "/input/{sample}.bam",
-		bai = OUT_FOLDER + "/input/{sample}.bam.bai"
-	output:
-		OUT_FOLDER + "/qc/{sample}/{sample}.aneuploidyCheck"
-	params:
-		script = SNAKEDIR + "/scripts/chrCopyCount.sh",
-		DICT = config["DICT"],
-		NMASK = config["NMASK"]
-	log: 
-		OUT_FOLDER + "/log/qc/{sample}/aneuploidyCheck.log"			
-	conda:
-		SNAKEDIR + "envs/sambamba.yaml"
-	shell:
-		"sh {params.script} {wildcards.sample} {input.bam} {params.DICT} {OUT_FOLDER}/qc/{wildcards.sample} {params.NMASK} > {log} 2>&1"
+# rule aneuploidyCheck:
+# 	input:
+# 		bam = OUT_FOLDER + "/input/{sample}.bam",
+# 		bai = OUT_FOLDER + "/input/{sample}.bam.bai",
+# 		DICT = OUT_FOLDER + "/ref/" + config["REF_BUILD"] + ".dict"
+# 	output:
+# 		OUT_FOLDER + "/qc/{sample}/{sample}.aneuploidyCheck"
+# 	params:
+# 		script = SNAKEDIR + "/scripts/chrCopyCount.sh",
+# 		NMASK = config["NMASK"]
+# 	log: 
+# 		OUT_FOLDER + "/log/qc/{sample}/aneuploidyCheck.log"			
+# 	conda:
+# 		SNAKEDIR + "envs/sambamba.yaml"
+# 	shell:
+# 		"sh {params.script} {wildcards.sample} {input.bam} {input.DICT} {OUT_FOLDER}/qc/{wildcards.sample} {params.NMASK} > {log} 2>&1"
 
 rule multiqc:
 	input:
@@ -110,8 +110,7 @@ rule multiqc:
 		expand(OUT_FOLDER + "/qc/{sample}/{sample}.stats", sample=participant_id),
 		expand(OUT_FOLDER + "/qc/{sample}/{sample}.wgs", sample=participant_id),
 		expand(OUT_FOLDER + "/qc/{sample}/{sample}.complexity", sample=participant_id),
-		expand(OUT_FOLDER + "/qc/{sample}/{sample}.sexCheck", sample=participant_id),
-		expand(OUT_FOLDER + "/qc/{sample}/{sample}.aneuploidyCheck", sample=participant_id)
+		expand(OUT_FOLDER + "/qc/{sample}/{sample}.sexCheck", sample=participant_id)
 	output:
 		OUT_FOLDER + "/qc/multiqc_report.html"
 	conda:

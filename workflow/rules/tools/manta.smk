@@ -6,7 +6,7 @@ rule manta:
 		vcf = OUT_FOLDER + "/sv_discovery/manta/{sample}/{sample}.manta.vcf.gz",
 		tbi = OUT_FOLDER + "/sv_discovery/manta/{sample}/{sample}.manta.vcf.gz.tbi"
 	conda:
-		"../../envs/manta.yaml"
+		SNAKEDIR + "envs/manta.yaml"
 	params:
 		ref = REF_BUILD
 	shell:

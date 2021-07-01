@@ -8,7 +8,7 @@ rule smoove:
 	params:
 		exclude = LIB_DIR + "/smoove_regions/GRCh" + REF_BUILD + ".exclude.bed"
 	conda:
-		"../../envs/smoove.yaml"
+		SNAKEDIR + "envs/smoove.yaml"
 	shell:
 		"smoove call --outdir {OUT_FOLDER}/sv_discovery/smoove/ \
 			--exclude {params.exclude} \

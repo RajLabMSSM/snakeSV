@@ -6,8 +6,11 @@ from snakemake.io import *
 version="0.3"
 
 ###################################################################################################
-## Check input
+## Check inputs
 ###################################################################################################
+# Set snakemake main workdir variable. 
+SNAKEDIR = os.path.dirname(workflow.snakefile) + "/"
+
 if( "workdir" not in config ):
     print("No working directory defined on the configuration file.")
     print("Using current folder (please make sure paths for supporting files are reachable).")
@@ -17,7 +20,7 @@ else:
 
 if( "OUT_FOLDER" not in config ):
     print("No output folder defined on the configuration file.")
-    OUT_FOLDER = os.getcwd() + "/results_snakesv/"
+    OUT_FOLDER = os.getcwd() + "/results_snakesv"
     print("Results will saved at:" + OUT_FOLDER)
 else:
 	OUT_FOLDER = config["OUT_FOLDER"]
@@ -26,6 +29,11 @@ if( "TMP_DIR" not in config ):
     TMP_DIR = "/tmp/"
 else:
 	TMP_DIR = config["TMP_DIR"]
+
+if( "LIB_DIR" not in config ):
+	LIB_DIR = SNAKEDIR + "../resources/"
+else:
+	LIB_DIR = SNAKEDIR + config["LIB_DIR"]
 
 # Required files
 if( "SAMPLE_KEY" not in config ):
@@ -40,11 +48,6 @@ if( "REF_BUILD" not in config ):
 TOOLS = config["TOOLS"]
 REFERENCE_FASTA = config["REFERENCE_FASTA"]
 REF_BUILD = config["REF_BUILD"]
-TMP_DIR = config["TMP_DIR"]
-
-# Set snakemake main workdir variable. 
-SNAKEDIR = os.path.dirname(workflow.snakefile) + "/"
-LIB_DIR = SNAKEDIR + config["LIB_DIR"]
 
 ## Check sample key file
 import ntpath, math, shutil, pandas
@@ -64,18 +67,18 @@ onstart:
 	# create dir for log on cluster mode
 	shell("mkdir -p clusterlog/")
 	print("")
-	print("----------------------------------------------------------------------------------------------------------")
+	print("-----------------------------------------------------------------------------------------------------------")
 	print("snakeSV Pipeline v%s by Ricardo A. Vialle (ricardovialle@gmail.com, https://github.com/RajLabMSSM/snakeSV)" % version)
-	print("----------------------------------------------------------------------------------------------------------")
+	print("-----------------------------------------------------------------------------------------------------------")
 	print("Parameters:")
 	for k,v in sorted(config.items()):
 		print(" - " + k + ": ", end='')
 		pprint.pprint(v)
-	print("----------------------------------------------------------------------------------------------------------")
+	print("-----------------------------------------------------------------------------------------------------------")
 	if( "SV_PANEL" in config ):
 		print("Custom SV panel is set. Variants from files below will be added for genotyping.")
 		print(config["SV_PANEL"])
-	print("----------------------------------------------------------------------------------------------------------")
+	print("-----------------------------------------------------------------------------------------------------------")
 	print("")
 
 def onend(msg, log):
@@ -88,12 +91,12 @@ def onend(msg, log):
 	log_file = OUT_FOLDER + "/log/snakesv_" + dtnow + ".log"
 	shell("cp {log} {log_file}")
 	print("")
-	print("----------------------------------------------------------------------------------------------------------")
+	print("-----------------------------------------------------------------------------------------------------------")
 	print(msg)
 	print("Please check the main log file for more information:")
 	print("\t" + os.path.abspath(log_file))
 	print("For a detailed running output report with execution time for each rule run againg with the flag --report")
-	print("----------------------------------------------------------------------------------------------------------")
+	print("-----------------------------------------------------------------------------------------------------------")
 	print("")
 
 onsuccess:
@@ -118,27 +121,18 @@ include: "rules/benchmark.smk"
 # Include all selected tools
 for tool in config["TOOLS"]:
 	include: ("rules/tools/"+tool+".smk")
-	
+
+################################################################################################### 
+## Final output
+###################################################################################################
+if( "GENCODE_GTF" or "ANNOTATION_BED" not in config ):
+	final_output = OUT_FOLDER + "/merged_cohort/gt_merged.annot.vcf.gz.tbi"
+else:
+	final_output = OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz.tbi"
+
 ################################################################################################### 
 rule all:
 	input:
-		#expand(OUT_FOLDER + "/input/{sample}.bam", sample=participant_id),
-		#expand(OUT_FOLDER + "/qc/{sample}/{sample}.metrics.insert_size_metrics", sample=participant_id),
-		#expand(OUT_FOLDER + "/qc/{sample}/{sample}.flagstat", sample=participant_id),
-		#expand(OUT_FOLDER + "/qc/{sample}/{sample}.stats", sample=participant_id),
-		#expand(OUT_FOLDER + "/qc/{sample}/{sample}.wgs", sample=participant_id),
-		#expand(OUT_FOLDER + "/qc/{sample}/{sample}.complexity", sample=participant_id),
 		OUT_FOLDER + "/qc/multiqc_report.html", ## Sample QC report
-		#expand(OUT_FOLDER + "/somalier_extracted/{sample}.somalier", sample=participant_id),
-		#OUT_FOLDER + "/somalier/somalier.somalier-ancestry.html",
-		#expand(OUT_FOLDER + "/sv_discovery/{tool}/{sample}/{sample}.{tool}.vcf.gz.tbi", sample=participant_id, tool=config["TOOLS"]),
-		#expand(OUT_FOLDER + "/sv_discovery/{tool}/{sample}/{sample}.{tool}.gt.vcf.gz.tbi", sample=participant_id, tool=config["TOOLS"]),
-		#expand(OUT_FOLDER + "/sv_discovery/merged/{sample}/{sample}.vcf.gz.tbi", sample=participant_id),
-		#OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz.tbi",
-		#expand(OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz.tbi", sample=participant_id),
-		#expand(OUT_FOLDER + "/sv_genotyping/{sample}/bench/giab_report.txt", sample=participant_id),
-		#expand(OUT_FOLDER + "/sv_discovery/{tool}/{sample}/bench/giab_report.txt", sample=participant_id, tool=config["TOOLS"]),
-		#expand(OUT_FOLDER + "/sv_discovery/{tool}/{sample}/bench_gt/giab_report.txt", sample=participant_id, tool=config["TOOLS"]),
-		OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz.tbi",
-		OUT_FOLDER + "/merged_cohort/gt_merged.annot.vcf.gz.tbi"
+		final_output
 ################################################################################################### 

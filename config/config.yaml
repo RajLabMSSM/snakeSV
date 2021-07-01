@@ -2,7 +2,7 @@
 workdir: "/hpc/users/viallr01/ad-omics/ricardo/MyRepo/snakeSV/"
 
 OUT_FOLDER: "results_GIAB"
-SAMPLE_KEY: "example/hg002/sampleKey.txt"
+SAMPLE_KEY: "config/sampleKey.txt"
 
 TOOLS: 
   - "manta"
@@ -11,23 +11,21 @@ TOOLS:
 
 # Custom annotations (optional)
 ANNOTATION_BED: 
-  - "data/brain-cell-type-peak-files/astrocytes_H3K27ac.bed"
-  - "data/brain-cell-type-peak-files/microglia_H3K27ac.bed"
-  - "data/brain-cell-type-peak-files/neurons_H3K27ac.bed"
-  - "data/brain-cell-type-peak-files/oligodendrocytes_H3K27ac.bed"
+  - "data/annotation/custom/astrocytes_H3K27ac.bed"
+  - "data/annotation/custom/microglia_H3K27ac.bed"
+  - "data/annotation/custom/neurons_H3K27ac.bed"
+  - "data/annotation/custom/oligodendrocytes_H3K27ac.bed"
 
 # Custom SVs for genotyping (optional)
-SV_PANEL: 
+SV_PANEL:
   - "data/sv_panel/hg002/variants.vcf"
 
 # Reference genome files
 REFERENCE_FASTA: "data/ref/human_g1k_v37.fasta"
 REF_BUILD: "37"
-DICT: "data/ref/human_g1k_v37.dict"
-NMASK: "data/ref/human_g1k_v37.mask.36.fasta.bed"
 
 # Gencode GTF for SV annotation
-GENCODE_GTF: "data/annotation/gencode.v38lift37.annotation.nochr.gtf.gz"
+GENCODE_GTF: "data/annotation/gtf/gencode.v38lift37.annotation.nochr.gtf.gz"
 
 # Custom tmp folder (if not /tmp)
 TMP_DIR: "~/ad-omics/ricardo/tmp/"
@@ -36,6 +34,3 @@ TMP_DIR: "~/ad-omics/ricardo/tmp/"
 # This path is relative to the Snakefile folder. 
 # No need to change in most of the cases.
 LIB_DIR: "../resources/"
-
-
-

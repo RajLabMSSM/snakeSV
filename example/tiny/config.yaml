@@ -1,6 +1,4 @@
 # All paths set on this file are relative to the workdir (if not absolute). 
-
-OUT_FOLDER: "../results_tiny"
 SAMPLE_KEY: "sampleKey.txt"
 
 TOOLS: 
@@ -10,8 +8,8 @@ TOOLS:
 # Reference genome files
 REFERENCE_FASTA: "ref.fasta"
 REF_BUILD: "37"
-DICT: "ref.dict"
-NMASK: "ref.nmask.fasta.bed"
+#DICT: "ref.dict"
+#NMASK: "ref.nmask.fasta.bed"
 
 # Gencode GTF for SV annotation
 GENCODE_GTF: "gencode.gtf.gz"

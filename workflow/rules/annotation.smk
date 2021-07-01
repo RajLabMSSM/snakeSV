@@ -11,7 +11,7 @@ if( "ANNOTATION_BED" not in config ):
 			vcf = OUT_FOLDER + "/merged_cohort/gt_merged.annot.vcf.gz",
 			tbi = OUT_FOLDER + "/merged_cohort/gt_merged.annot.vcf.gz.tbi"
 		conda:
-			"../envs/svtk.yaml"		
+			SNAKEDIR + "envs/svtk.yaml"		
 		params:
 			gencode = config["GENCODE_GTF"]
 		shell:
@@ -19,7 +19,7 @@ if( "ANNOTATION_BED" not in config ):
 				--gencode {params.gencode} \
 				{input.vcfgz} {output.vcf}; "
 			"tabix -p vcf {output.vcf}; "
-else:
+else: 
 	rule annotate_bed:
 		input:
 			vcf = OUT_FOLDER + "/merged_cohort/gt_merged.vcf",
@@ -30,7 +30,7 @@ else:
 			vcf = OUT_FOLDER + "/merged_cohort/gt_merged.annot.vcf.gz",
 			tbi = OUT_FOLDER + "/merged_cohort/gt_merged.annot.vcf.gz.tbi"
 		conda:
-			"../envs/svtk.yaml"
+			SNAKEDIR + "envs/svtk.yaml"
 		params:
 			bed = config["ANNOTATION_BED"],
 			bed_cat = OUT_FOLDER + "/merged_cohort/annot.bed",
@@ -39,6 +39,8 @@ else:
 			header = OUT_FOLDER + "/merged_cohort/tmp/header",
 			variants = OUT_FOLDER + "/merged_cohort/tmp/variants"
 		shell:
+			# svtk seems to strugle to process large files. 
+			# breaking in small chunks for annotation. 
 			"cat {params.bed} > {params.bed_cat}; "
 			"mkdir -p {output.tmp}; "
 			"cp {params.gencode} {params.gencode_copy}; "
@@ -46,6 +48,7 @@ else:
 			"head -n 10000 {input.vcf} | grep '^#' > {params.header}; "
 			#grab the non header lines
 			"grep -v '^#' {input.vcf} > {params.variants}; "
+			"curDir=$PWD; "
 			#split into chunks with 100 lines
 			"cd {output.tmp}; "
 			"split -l 3000 variants; "
@@ -57,5 +60,6 @@ else:
 					--noncoding ../annot.bed \
 					$i.vcf $i.annot.vcf; "
 			"done; "
-			"bcftools concat $i.annot.vcf -Oz -o {output.vcf}; "
+			"cd $curDir; "
+			"bcftools concat {output.tmp}/*.annot.vcf -Oz -o {output.vcf}; "
 			"tabix -p vcf {output.vcf}; "

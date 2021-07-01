@@ -5,3 +5,5 @@ channels:
 dependencies:
   - svtyper=0.7.1
   - smoove=0.2.7
+  - svtools=0.5.1
+  - openssl=1.0

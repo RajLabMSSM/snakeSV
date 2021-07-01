@@ -21,9 +21,9 @@ library(ggpubr)
 #NONCODING_SPAN "Classes of noncoding elements spanned by SV."
 #NONCODING_BREAKPOINT "Classes of noncoding elements disrupted by SV breakpoint."
 
-work_dir = "/hpc/users/viallr01/ad-omics/ricardo/MyRepo/SV-Pipeline/workflow"
+work_dir = "~/ad-omics/ricardo/MyRepo/snakeSV"
 
-vcf_annot = read.vcfR(paste0(work_dir,"/results/merged_cohort/gt_merged.annot.vcf.gz"))
+vcf_annot = read.vcfR(paste0(work_dir,"/results_study_case_2/merged_cohort/gt_merged.annot.vcf.gz"))
 
 info = as.data.frame(cbind(as.data.frame(getFIX(vcf_annot)), extract_info_tidy(vcf_annot)))
 annot_df = unique(info[,c("ID","LOF","DUP_LOF","COPY_GAIN","INV_SPAN","DUP_PARTIAL","INTRONIC","UTR","INTERGENIC")])
@@ -111,6 +111,7 @@ rownames(custom_report2) = custom_report2$ID
 head(custom_report2)
 
 library(ComplexHeatmap)
+library(circlize)
 
 custom_only = !is.na(custom_report2[,7:ncol(custom_report2)]) %>% t() %>%
   as.data.frame()

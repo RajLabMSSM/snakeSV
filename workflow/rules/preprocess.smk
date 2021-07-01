@@ -19,6 +19,29 @@ rule indexBAM:
 	output:
 		OUT_FOLDER + "/input/{sample}.bam.bai"
 	conda:
-		srcdir("../envs/bamtools.yaml")
+		SNAKEDIR + "envs/bamtools.yaml"
 	shell:
 		"bamtools index -in {input}"
+
+rule indexREF:
+	input:
+		REFERENCE_FASTA
+	output:
+		REFERENCE_FASTA + ".fai"
+	conda:
+		SNAKEDIR + "envs/samtools.yaml"
+	shell:
+		"samtools faidx {input}"
+
+rule makeDICT:
+	input:
+		REFERENCE_FASTA
+	output:
+		OUT_FOLDER + "/ref/" + config["REF_BUILD"] + ".dict"
+	log: 
+		OUT_FOLDER + "/log/qc/CreateSequenceDictionary.log"
+	conda:
+		SNAKEDIR + "envs/picard.yaml"
+	shell:
+		"picard CreateSequenceDictionary R={input} O={output} > {log} 2>&1"
+

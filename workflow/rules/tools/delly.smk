@@ -7,7 +7,7 @@ rule delly:
 		tbi = OUT_FOLDER + "/sv_discovery/delly/{sample}/{sample}.delly.vcf.gz.tbi",
 		bcf = OUT_FOLDER + "/sv_discovery/delly/{sample}/{sample}.bcf"
 	conda:
-		"../../envs/delly.yaml"
+		SNAKEDIR + "envs/delly.yaml"
 	params:
 		exclude = LIB_DIR + "/delly_maps/human.hg" + REF_BUILD + ".excl.tsv",
 	shell:

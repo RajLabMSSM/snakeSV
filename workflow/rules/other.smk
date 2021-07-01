@@ -35,6 +35,6 @@ rule svtk_collect_pers:
 		splitfile = OUT_FOLDER + "/support/{sample}.splitfile",
 		discfile = OUT_FOLDER + "/support/{sample}.discfile"
 	conda:
-		"../envs/svtk.yaml"	
+		SNAKEDIR + "envs/svtk.yaml"	
 	shell:
 		"svtk collect-pesr {input.bam} {wildcards.sample} {output.splitfile} {output.discfile}; "

@@ -1,4 +1,0 @@
-participant_id	bam
-HG002	data/HG002.bam
-HG003	data/HG003.bam
-HG004	data/HG004.bam
