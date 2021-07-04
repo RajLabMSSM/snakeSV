@@ -3,6 +3,7 @@ rule smoove:
 		bam = OUT_FOLDER + "/input/{sample}.bam",
 		bai = OUT_FOLDER + "/input/{sample}.bam.bai"
 	output:
+		outdir = temp(directory(OUT_FOLDER + "/sv_discovery/smoove/{sample}/outdir/")),
 		vcf = OUT_FOLDER + "/sv_discovery/smoove/{sample}/{sample}.smoove.vcf.gz",
 		tbi = OUT_FOLDER + "/sv_discovery/smoove/{sample}/{sample}.smoove.vcf.gz.tbi"
 	params:
@@ -10,10 +11,10 @@ rule smoove:
 	conda:
 		SNAKEDIR + "envs/smoove.yaml"
 	shell:
-		"smoove call --outdir {OUT_FOLDER}/sv_discovery/smoove/ \
+		"smoove call --outdir {output.outdir} \
 			--exclude {params.exclude} \
 			--name {wildcards.sample} \
 			--fasta {REFERENCE_FASTA} --genotype {input.bam}; "
-		"zgrep -v 'SVTYPE=BND' {OUT_FOLDER}/sv_discovery/smoove/{wildcards.sample}-smoove.genotyped.vcf.gz | \
+		"zgrep -v 'SVTYPE=BND' {output.outdir}/{wildcards.sample}-smoove.genotyped.vcf.gz | \
 			bcftools sort -Oz -o {output.vcf}; "
 		"tabix -p vcf {output.vcf}; "

@@ -1,5 +1,7 @@
 channels:
   - bioconda
 dependencies:
-  - melt=1.0.3
+  - java-jdk=8.0.112
   - bcftools=1.12
+  - samtools=1.12
+  - bowtie2=2.4.4

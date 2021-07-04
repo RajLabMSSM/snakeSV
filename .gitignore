@@ -5,6 +5,7 @@ bioconda
 clusterlog
 data
 results*
+resources/melt
 snakejob
 ms_results
 README.html

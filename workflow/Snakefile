@@ -113,7 +113,6 @@ include: "rules/qc.smk"
 include: "rules/other.smk"
 include: "rules/genotype.smk"
 include: "rules/annotation.smk"
-include: "rules/benchmark.smk"
 
 ###################################################################################################
 ## SV discovery tools
@@ -125,10 +124,21 @@ for tool in config["TOOLS"]:
 ################################################################################################### 
 ## Final output
 ###################################################################################################
+final_output = [OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz.tbi"]
+
 if( "GENCODE_GTF" or "ANNOTATION_BED" not in config ):
-	final_output = OUT_FOLDER + "/merged_cohort/gt_merged.annot.vcf.gz.tbi"
-else:
-	final_output = OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz.tbi"
+	final_output.append(OUT_FOLDER + "/merged_cohort/gt_merged.annot.vcf.gz.tbi")
+
+################################################################################################### 
+## Benchmarking
+###################################################################################################
+BENCHMARK=False
+if (BENCHMARK):
+	include: "rules/benchmark.smk"
+	final_output.append(expand(OUT_FOLDER + "/bench/{sample}/sv_discovery/{tool}/giab_report.txt", sample=participant_id, tool=config["TOOLS"]))
+	final_output.append(expand(OUT_FOLDER + "/bench/{sample}/sv_discovery/{tool}.gt/giab_report.txt", sample=participant_id, tool=config["TOOLS"]))
+	final_output.append(expand(OUT_FOLDER + "/bench/{sample}/sv_genotyping/{tool}/giab_report.txt", sample=participant_id, tool=config["TOOLS"]))
+	final_output.append(expand(OUT_FOLDER + "/bench/{sample}/merged/giab_report.txt", sample=participant_id))
 
 ################################################################################################### 
 rule all:

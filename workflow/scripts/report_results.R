@@ -26,6 +26,7 @@ work_dir = "~/ad-omics/ricardo/MyRepo/snakeSV"
 vcf_annot = read.vcfR(paste0(work_dir,"/results_study_case_2/merged_cohort/gt_merged.annot.vcf.gz"))
 
 info = as.data.frame(cbind(as.data.frame(getFIX(vcf_annot)), extract_info_tidy(vcf_annot)))
+info = info[info$QUAL>0,]
 annot_df = unique(info[,c("ID","LOF","DUP_LOF","COPY_GAIN","INV_SPAN","DUP_PARTIAL","INTRONIC","UTR","INTERGENIC")])
 colnames(annot_df) = toupper(colnames(annot_df))
 annot_df$LOF = ifelse(is.na(annot_df$LOF),FALSE,TRUE)
@@ -126,8 +127,8 @@ colnames(mat) <- gsub("(.*):(.*)","\\1",colnames(mat))
 col_fun = c("white",pal_nejm("default")(nrow(custom_only)))
 names(col_fun) = as.character(0:nrow(custom_only))
 
-svtype_col = pal_npg()(2)
-names(svtype_col) = c("DEL","INS")
+svtype_col = pal_npg()(3)
+names(svtype_col) = c("DEL","DUP","INS")
 svlen_col = colorRamp2(c(min(custom_report2$SVLEN), max(custom_report2$SVLEN)/2, max(custom_report2$SVLEN)), 
                        rev(RColorBrewer::brewer.pal(n = 3, name ="RdBu"))) 
 region_col = pal_npg()(5)[3:5]
@@ -143,7 +144,7 @@ ha = HeatmapAnnotation(CONSEQUENCE = custom_report2$CONSEQUENCE,
                        border = T,
                        annotation_name_gp = list("cex" = 0.7))
 
-pdf(paste0(work_dir,"/results/annotcustom.pdf"), width = 12, height = 2.8)
+pdf(paste0(work_dir,"/results/annotcustom.pdf"), width = 14, height = 2.8)
 Heatmap(mat, col = col_fun, bottom_annotation = ha, column_names_gp = gpar(fontsize = 10),
         show_row_dend = F, show_column_dend = F, rect_gp = gpar(col = "white", lwd = 1))
 dev.off()
@@ -152,7 +153,7 @@ dev.off()
 
 
 
-###
+##
 
 
 annot_df_m = reshape2::melt(annot_df, id.vars = "ID")

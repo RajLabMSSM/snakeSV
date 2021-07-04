@@ -34,3 +34,4 @@ TMP_DIR: "~/ad-omics/ricardo/tmp/"
 # This path is relative to the Snakefile folder. 
 # No need to change in most of the cases.
 LIB_DIR: "../resources/"
+

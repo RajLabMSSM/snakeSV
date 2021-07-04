@@ -22,9 +22,9 @@ if( "ANNOTATION_BED" not in config ):
 else: 
 	rule annotate_bed:
 		input:
-			vcf = OUT_FOLDER + "/merged_cohort/gt_merged.vcf",
-			vcfgz = OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz",
-			tbi = OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz.tbi"
+			vcf = OUT_FOLDER + "/merged_cohort/gt_merged_full.vcf",
+			vcfgz = OUT_FOLDER + "/merged_cohort/gt_merged_full.vcf.gz",
+			tbi = OUT_FOLDER + "/merged_cohort/gt_merged_full.vcf.gz.tbi"
 		output:
 			tmp = temp(directory(OUT_FOLDER + "/merged_cohort/tmp")),
 			vcf = OUT_FOLDER + "/merged_cohort/gt_merged.annot.vcf.gz",
