@@ -54,7 +54,7 @@ rule merge_samples_01:
 					shell("ls {sv_ref} >> {output.vcf_list}; ")
 
 # Options of using SURVIVOR or Jasmine. Jasmine by default.
-useJAMINE=True
+useJAMINE=False
 if (useJAMINE):
 	checkpoint merge_samples_02:
 		input:
@@ -69,6 +69,7 @@ if (useJAMINE):
 			vcf_list = OUT_FOLDER + "/merged_cohort/vcf.list",
 		shell:
 			"jasmine file_list={params.vcf_list} out_file={output.vcf}; " 
+			"jasmine --dup_to_ins --postprocess_only out_file={output.vcf}; "
 			"bcftools sort -Oz -o {output.vcfgz} {output.vcf}; "
 			"tabix -p vcf {output.vcfgz}; "
 else:
@@ -83,7 +84,7 @@ else:
 			SNAKEDIR + "envs/survivor.yaml"
 		params:
 			vcf_list = OUT_FOLDER + "/merged_cohort/vcf.list",
-			breakpoint_dist = "500",
+			breakpoint_dist = "100",
 			min_num_calls = "1",
 			use_type = "1",
 			use_strand = "1",
@@ -146,14 +147,18 @@ rule genotype_02:
 	output:
 		vcf = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf",
 		vcfgz = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz",
-		tbi = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz.tbi"
+		tbi = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz.tbi",
+		filt_vcfgz = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.filt.vcf.gz",
+		filt_tbi = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.filt.vcf.gz.tbi"
 	conda:
 		SNAKEDIR + "envs/graphtyper.yaml"
 	priority: 0
 	shell:
-		"graphtyper vcf_concatenate {input.vcf} | bcftools sort > {output.vcf}; "
+		"graphtyper vcf_concatenate {input.vcf} | bcftools view --include \"SVMODEL='AGGREGATED'\" | bcftools sort > {output.vcf}; "
 		"bgzip -c {output.vcf} > {output.vcfgz}; "
 		"tabix -p vcf {output.vcfgz}; "
+		"bcftools view -e QUAL==0 -Oz -o {output.filt_vcfgz} {output.vcfgz}; "
+		"tabix -p vcf {output.filt_vcfgz}; "
 
 rule merge_genotyped_samples:
 	input:
@@ -168,11 +173,10 @@ rule merge_genotyped_samples:
 	conda:
 		SNAKEDIR + "envs/graphtyper.yaml"		
 	shell:
-		"graphtyper vcf_merge {input.vcf} --sv | \
-		grep -E -v \"BREAKPOINT|COVERAGE\" | grep -E -v \"VarType=XG|VarType=IG\" > {output.vcf_full}; "
+		"graphtyper vcf_merge {input.vcf} --sv | grep -E -v \"VarType=XG|VarType=IG\" > {output.vcf_full}; "
 		"bcftools sort -Oz -o {output.vcfgz_full} {output.vcf_full}; "
 		"tabix -p vcf {output.vcfgz_full}; "
-		"bcftools view -f PASS {output.vcfgz_full} > {output.vcf}; "
+		"bcftools view -e QUAL==0 {output.vcfgz_full} > {output.vcf}; "
 		"bgzip -c {output.vcf} > {output.vcfgz}; "
 		"tabix -p vcf {output.vcfgz}; "
 
@@ -207,6 +211,6 @@ rule genotype_discovery:
 			--output={params.outdir}; \
 		done; "
 		"graphtyper vcf_concatenate --no_sort {params.outdir}/*/*.vcf.gz | \
-			grep -E -v \"BREAKPOINT|COVERAGE\" | bcftools sort > {output.vcf};" 
+			bcftools view --include \"SVMODEL='AGGREGATED'\" | bcftools view -e QUAL==0 | bcftools sort > {output.vcf};" 
 		"bgzip -c {output.vcf} > {output.vcfgz}; "
 		"tabix -p vcf {output.vcfgz}; "

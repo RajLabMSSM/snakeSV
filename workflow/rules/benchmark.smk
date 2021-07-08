@@ -1,7 +1,12 @@
 ###################################################################################################
 ## Benchmarking against GiaB
-###################################################################################################
 # Deactivated in the pipeline.
+###################################################################################################
+# Default
+GIAB_VCF = "data/bench/HG002_SVs_Tier1_v0.6.vcf.gz"
+GIAB_BED = "data/bench/HG002_SVs_Tier1_v0.6.22XY.bed"
+
+# Benchmark raw SV callers
 rule benchmark_raw:
 	input:
 		vcf = OUT_FOLDER + "/sv_discovery/{tool}/{sample}/{sample}.{tool}.vcf.gz"
@@ -10,8 +15,8 @@ rule benchmark_raw:
 	conda:
 		SNAKEDIR + "envs/truvari.yaml"		
 	params:
-		base = "data/bench/HG002_SVs_Tier1_v0.6.vcf.gz",
-		bed = "data/bench/HG002_SVs_Tier1_v0.6.22XY.bed",
+		base = GIAB_VCF,
+		bed = GIAB_BED,
 		ref = REFERENCE_FASTA,
 		outdir = OUT_FOLDER + "/bench/{sample}/sv_discovery/{tool}/"
 	shell:
@@ -27,14 +32,15 @@ rule benchmark_raw:
  			-r 2000 \
  			--giabreport; "
 
+# Benchmark each SV caller after genotyping (e.g. Manta + GraphTyper, or Delly + GraphTyper)
 rule benchmark_raw_gt:
 	input:
 		vcf = OUT_FOLDER + "/sv_discovery/{tool}/{sample}/{sample}.{tool}.gt.vcf.gz"
 	output:
 		OUT_FOLDER + "/bench/{sample}/sv_discovery/{tool}.gt/giab_report.txt"
 	params:
-		base = "data/bench/HG002_SVs_Tier1_v0.6.vcf.gz",
-		bed = "data/bench/HG002_SVs_Tier1_v0.6.22XY.bed",
+		base = GIAB_VCF,
+		bed = GIAB_BED,
 		ref = REFERENCE_FASTA,
 		outdir = OUT_FOLDER + "/bench/{sample}/sv_discovery/{tool}.gt/"
 	conda:
@@ -54,14 +60,15 @@ rule benchmark_raw_gt:
  			-r 2000 \
  			--giabreport; "
 
+# Benchmark each SV caller after joint-genotying. This may also include SV reference panels, if specified.
 rule benchmark_gt:
 	input:
 		vcf = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz"
 	output:
 		OUT_FOLDER + "/bench/{sample}/sv_genotyping/{tool}/giab_report.txt"
 	params:
-		base = "data/bench/HG002_SVs_Tier1_v0.6.vcf.gz",
-		bed = "data/bench/HG002_SVs_Tier1_v0.6.22XY.bed",
+		base = GIAB_VCF,
+		bed = GIAB_BED,
 		ref = REFERENCE_FASTA,
 		outdir = OUT_FOLDER + "/bench/{sample}/sv_genotyping/{tool}/"
 	conda:
@@ -81,19 +88,23 @@ rule benchmark_gt:
  			-r 2000 \
  			--giabreport; "
 
+# Benchmark SVs from the final genotyped and merged call set.
 rule benchmark_merged_gt:
 	input:
 		vcf = OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz"
 	output:
-		OUT_FOLDER + "/bench/{sample}/merged/giab_report.txt"
+		vcf = OUT_FOLDER + "/bench/{sample}/merged/vcf.gz",
+		report = OUT_FOLDER + "/bench/{sample}/merged/giab_report.txt"
 	params:
-		base = "data/bench/HG002_SVs_Tier1_v0.6.vcf.gz",
-		bed = "data/bench/HG002_SVs_Tier1_v0.6.22XY.bed",
+		base = GIAB_VCF,
+		bed = GIAB_BED,
 		ref = REFERENCE_FASTA,
 		outdir = OUT_FOLDER + "/bench/{sample}/merged/"
 	conda:
 		SNAKEDIR + "envs/truvari.yaml"
 	shell:
+		"bcftools view -c1 -s {wildcards.sample} -Oz -o {output.vcf} {input.vcf}; "
+		"tabix -p vcf {output.vcf}; "
 		"rm -rf {params.outdir}; "
 		"truvari bench \
  			-b {params.base} \
@@ -104,3 +115,5 @@ rule benchmark_merged_gt:
  			-p 0 \
  			-r 2000 \
  			--giabreport; "
+
+

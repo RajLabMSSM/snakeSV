@@ -3,7 +3,7 @@ import glob
 import yaml
 from snakemake.io import *
 
-version="0.3"
+version="0.4"
 
 ###################################################################################################
 ## Check inputs

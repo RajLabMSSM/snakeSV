@@ -1,0 +1,14 @@
+OUT_FOLDER: "results_study_case_1_nopanel"
+SAMPLE_KEY: "example/aj_trio/study_case_1/sampleKey.txt"
+
+TOOLS:
+  - "manta"
+  - "smoove"
+  - "delly"
+
+# Reference genome files
+REFERENCE_FASTA: "data/ref/human_g1k_v37.fasta"
+REF_BUILD: "37"
+
+# Gencode GTF for SV annotation
+GENCODE_GTF: "data/annotation/gtf/gencode.v38lift37.annotation.nochr.gtf.gz"
