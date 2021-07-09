@@ -112,7 +112,6 @@ include: "rules/preprocess.smk"
 include: "rules/qc.smk"
 include: "rules/other.smk"
 include: "rules/genotype.smk"
-include: "rules/annotation.smk"
 
 ###################################################################################################
 ## SV discovery tools
@@ -126,7 +125,11 @@ for tool in config["TOOLS"]:
 ###################################################################################################
 final_output = [OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz.tbi"]
 
-if( "GENCODE_GTF" or "ANNOTATION_BED" not in config ):
+################################################################################################### 
+## Annotations
+###################################################################################################
+if( ("GENCODE_GTF" in config) or ("ANNOTATION_BED" in config) ):
+	include: "rules/annotation.smk"
 	final_output.append(OUT_FOLDER + "/merged_cohort/gt_merged.annot.vcf.gz.tbi")
 
 ################################################################################################### 

@@ -1,4 +1,4 @@
-# All paths set on this file are relative to the workdir (if not absolute). 
+# All paths set on this file are relative to the workdir (if not absolute).
 SAMPLE_KEY: "sampleKey.txt"
 
 TOOLS: 
@@ -8,16 +8,7 @@ TOOLS:
 # Reference genome files
 REFERENCE_FASTA: "ref.fasta"
 REF_BUILD: "37"
-#DICT: "ref.dict"
-#NMASK: "ref.nmask.fasta.bed"
 
 # Gencode GTF for SV annotation
 GENCODE_GTF: "gencode.gtf.gz"
 
-# Custom tmp folder (if not /tmp)
-TMP_DIR: "/tmp/"
-
-# Supporting files for tools like smoove and delly. 
-# This path is relative to the Snakefile folder. 
-# No need to change in most of the cases.
-LIB_DIR: "../resources/"
