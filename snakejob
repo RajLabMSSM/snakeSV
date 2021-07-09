@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+display_help() {
+  echo "Usage: ./snakejob -c config.yaml -u cluster.yaml"
+  echo ""
+  echo "Options:"
+  echo "-c config file (--configfile)"
+  echo "-u cluster config file"
+  echo "-n dry run mode"
+  echo ""
+  exit 0
+}
+
+while getopts 'c:u:inh' flag; do
+  case "${flag}" in
+    c) config="${OPTARG}" ;;
+    u) cluster="${OPTARG}" ;;
+    n) dryrun="-n" ;;
+    h) display_help
+       exit 1 ;;
+  esac
+done
+
+if [ ! -d "clusterlog" ]; then
+  mkdir -p clusterlog
+fi
+
+if [ ! -z "$dryrun" ];then
+	echo "dry run mode"
+fi
+
+if [ ! -e $config ]; then
+	echo "error: config file does not exist" 
+	exit 0
+fi
+
+if [ ! -e $cluster ]; then
+  echo "error: cluster file does not exist" 
+  exit 0
+fi
+
+echo config used is $config
+echo cluster used is $cluster
+
+bsub=("bsub -K -J $jname:{rule}:{wildcards}"
+"-P acc_ad-omics "
+"-q {cluster.queue} "
+"-n {cluster.cores} -R \"span[hosts=1] select[mem>{cluster.mem}]"
+"rusage[mem={cluster.mem}]\" -W {cluster.time} "
+"-oo clusterlog/{rule}_{wildcards}.stdout "
+"-eo clusterlog/{rule}_{wildcards}.stderr < ")
+
+./snakeSV --configfile $config -pr --local-cores 1 --use-conda \
+  -u $cluster --cluster-sync "${bsub[*]}" \
+  --keep-going \
+  --rerun-incomplete \
+  --jobs 50 \
+  --restart-times 0 \
+  --latency-wait 30 \
+  $dryrun
+ 
