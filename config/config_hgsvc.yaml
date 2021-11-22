@@ -1,7 +1,7 @@
 # All paths set on this file are relative to the workdir (if not absolute). 
 workdir: "/hpc/users/viallr01/ad-omics/ricardo/MyRepo/snakeSV/"
 
-OUT_FOLDER: "results_GIAB_refHGSVC2"
+OUT_FOLDER: "results_GIAB_HGSVC2"
 SAMPLE_KEY: "config/sampleKey.txt"
 
 TOOLS: 
@@ -11,7 +11,7 @@ TOOLS:
 
 # Custom SVs for genotyping (optional)
 SV_PANEL:
-  - "data/sv_panel/HGSVC2/merged.h37.vcf"
+  - "data/sv_panel/HGSVC2/merged.survivor.h37.vcf"
 
 # Reference genome files
 REFERENCE_FASTA: "data/ref/human_g1k_v37.fasta"

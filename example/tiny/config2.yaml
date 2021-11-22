@@ -1,0 +1,13 @@
+# All paths set on this file are relative to the workdir (if not absolute).
+SAMPLE_KEY: "sampleKey.txt"
+
+TOOLS: 
+  - "manta"
+  - "delly"
+
+STR_TOOLS:
+  - "strling"
+
+# Reference genome files
+REFERENCE_FASTA: "ref.fasta"
+REF_BUILD: "37"

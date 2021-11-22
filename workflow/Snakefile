@@ -3,7 +3,9 @@ import glob
 import yaml
 from snakemake.io import *
 
-version="0.4"
+version="0.6"
+
+#container: "docker://mambaorg/micromamba"
 
 ###################################################################################################
 ## Check inputs
@@ -21,7 +23,7 @@ else:
 if( "OUT_FOLDER" not in config ):
     print("No output folder defined on the configuration file.")
     OUT_FOLDER = os.getcwd() + "/results_snakesv"
-    print("Results will saved at:" + OUT_FOLDER)
+    print("Results will saved at: " + OUT_FOLDER)
 else:
 	OUT_FOLDER = config["OUT_FOLDER"]
 
@@ -34,6 +36,13 @@ if( "LIB_DIR" not in config ):
 	LIB_DIR = SNAKEDIR + "../resources/"
 else:
 	LIB_DIR = SNAKEDIR + config["LIB_DIR"]
+
+if( "BENCHMARK" not in config ):
+    BENCHMARK = False
+else:
+	BENCHMARK = True
+	GIAB_VCF = config["GIAB_VCF"]
+	GIAB_BED = config["GIAB_BED"]
 
 # Required files
 if( "SAMPLE_KEY" not in config ):
@@ -118,12 +127,19 @@ include: "rules/genotype.smk"
 ###################################################################################################
 # Include all selected tools
 for tool in config["TOOLS"]:
-	include: ("rules/tools/"+tool+".smk")
+	include: ("rules/tools/" + tool + ".smk")
+
+# Include all selected STR discovery tools
+for str_tool in config["STR_TOOLS"]:
+	include: ("rules/str_tools/" + str_tool + ".smk")
 
 ################################################################################################### 
 ## Final output
 ###################################################################################################
 final_output = [OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz.tbi"]
+
+if("strling" in config["STR_TOOLS"]):
+	final_output.append(expand(OUT_FOLDER + "/str_joint_calling/{sample}/str-results/{sample}-genotype.txt", sample=participant_id))
 
 ################################################################################################### 
 ## Annotations
@@ -135,17 +151,17 @@ if( ("GENCODE_GTF" in config) or ("ANNOTATION_BED" in config) ):
 ################################################################################################### 
 ## Benchmarking
 ###################################################################################################
-BENCHMARK=False
 if (BENCHMARK):
 	include: "rules/benchmark.smk"
 	final_output.append(expand(OUT_FOLDER + "/bench/{sample}/sv_discovery/{tool}/giab_report.txt", sample=participant_id, tool=config["TOOLS"]))
-	final_output.append(expand(OUT_FOLDER + "/bench/{sample}/sv_discovery/{tool}.gt/giab_report.txt", sample=participant_id, tool=config["TOOLS"]))
-	final_output.append(expand(OUT_FOLDER + "/bench/{sample}/sv_genotyping/{tool}/giab_report.txt", sample=participant_id, tool=config["TOOLS"]))
-	final_output.append(expand(OUT_FOLDER + "/bench/{sample}/merged/giab_report.txt", sample=participant_id))
+	#final_output.append(expand(OUT_FOLDER + "/bench/{sample}/sv_discovery/{tool}.gt/giab_report.txt", sample=participant_id, tool=config["TOOLS"]))
+	final_output.append(expand(OUT_FOLDER + "/bench/{sample}/sv_genotyping/giab_report.txt", sample=participant_id))
+	final_output.append(expand(OUT_FOLDER + "/bench/{sample}/merged/truvari/giab_report.txt", sample=participant_id))
 
 ################################################################################################### 
 rule all:
 	input:
 		OUT_FOLDER + "/qc/multiqc_report.html", ## Sample QC report
+		#OUT_FOLDER + "/somalier/somalier.somalier-ancestry.html", ## Ancestry report 
 		final_output
 ################################################################################################### 

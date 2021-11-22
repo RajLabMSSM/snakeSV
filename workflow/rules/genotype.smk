@@ -148,8 +148,8 @@ rule genotype_02:
 		vcf = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf",
 		vcfgz = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz",
 		tbi = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz.tbi",
-		filt_vcfgz = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.filt.vcf.gz",
-		filt_tbi = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.filt.vcf.gz.tbi"
+		filt_vcfgz = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}_filt.vcf.gz",
+		filt_tbi = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}_filt.vcf.gz.tbi"
 	conda:
 		SNAKEDIR + "envs/graphtyper.yaml"
 	priority: 0
