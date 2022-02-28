@@ -130,16 +130,18 @@ for tool in config["TOOLS"]:
 	include: ("rules/tools/" + tool + ".smk")
 
 # Include all selected STR discovery tools
-for str_tool in config["STR_TOOLS"]:
-	include: ("rules/str_tools/" + str_tool + ".smk")
+if( "STR_TOOLS" in config ):
+	for str_tool in config["STR_TOOLS"]:
+		include: ("rules/str_tools/" + str_tool + ".smk")
 
 ################################################################################################### 
 ## Final output
 ###################################################################################################
 final_output = [OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz.tbi"]
 
-if("strling" in config["STR_TOOLS"]):
-	final_output.append(expand(OUT_FOLDER + "/str_joint_calling/{sample}/str-results/{sample}-genotype.txt", sample=participant_id))
+if( "STR_TOOLS" in config ):
+	if("strling" in config["STR_TOOLS"]):
+		final_output.append(expand(OUT_FOLDER + "/str_joint_calling/{sample}/str-results/{sample}-genotype.txt", sample=participant_id))
 
 ################################################################################################### 
 ## Annotations
