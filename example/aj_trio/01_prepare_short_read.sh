@@ -1,5 +1,3 @@
-#!/bin/bash
-
 curDir=${PWD}
 
 conda deactivate
@@ -39,38 +37,38 @@ mkdir -p ${curDir}/data/bam
 cd ${curDir}/data/bam
 
 bwa mem \
-	-t 32 \
+	-t 8 \
 	-T 0 \
 	-K 100000000 \
 	-R '@RG\tID:HG002\tSM:HG002' \
 	../ref/human_g1k_v37.fasta.gz \
 	../fastq/HG002_HiSeq30x_subsampled_R1.fastq.gz \
 	../fastq/HG002_HiSeq30x_subsampled_R2.fastq.gz | \
-	samtools sort --threads 32 --write-index -O BAM -o HG002.bam - 
+	samtools sort --threads 8 --write-index -O BAM -o HG002.bam - 
 samtools index HG002.bam
 samtools view -b HG002.bam 22 X Y > HG002.22XY.bam
 
 bwa mem \
-	-t 32 \
+	-t 8 \
 	-T 0 \
 	-K 100000000 \
 	-R '@RG\tID:HG003\tSM:HG003' \
 	../ref/human_g1k_v37.fasta.gz \
 	../fastq/HG003_HiSeq30x_subsampled_R1.fastq.gz \
 	../fastq/HG003_HiSeq30x_subsampled_R2.fastq.gz | \
-	samtools sort --threads 32 --write-index -O BAM -o HG003.bam - 
+	samtools sort --threads 8 --write-index -O BAM -o HG003.bam - 
 samtools index HG003.bam
 samtools view -b HG003.bam 22 X Y > HG003.22XY.bam
 
 bwa mem \
-	-t 32 \
+	-t 8 \
 	-T 0 \
 	-K 100000000 \
 	-R '@RG\tID:HG004\tSM:HG004' \
 	../ref/human_g1k_v37.fasta.gz \
 	../fastq/HG004_HiSeq30x_subsampled_R1.fastq.gz \
 	../fastq/HG004_HiSeq30x_subsampled_R2.fastq.gz | \
-	samtools sort --threads 32 --write-index -O BAM -o HG004.bam - 
+	samtools sort --threads 8 --write-index -O BAM -o HG004.bam - 
 samtools index HG004.bam
 samtools view -b HG004.bam 22 X Y > HG004.22XY.bam
 
