@@ -15,9 +15,7 @@ rule merge_tools:
 	input:
 		vcf = expand(OUT_FOLDER + "/sv_discovery/merged/{{sample}}/{{sample}}.{tool}.vcf", tool=TOOLS)
 	output:
-		vcf = OUT_FOLDER + "/sv_discovery/merged/{sample}/{sample}.vcf",
-		vcfgz = OUT_FOLDER + "/sv_discovery/merged/{sample}/{sample}.vcf.gz",
-		tbi = OUT_FOLDER + "/sv_discovery/merged/{sample}/{sample}.vcf.gz.tbi"
+		vcf = OUT_FOLDER + "/sv_discovery/merged/{sample}/{sample}.vcf"
 	conda:
 		SNAKEDIR + "envs/survivor.yaml"
 	params:
@@ -38,8 +36,18 @@ rule merge_tools:
 			{params.dist_based} \
 			{params.min_sv_size} \
 			{output.vcf}; "
-		"bcftools sort -Oz -o {output.vcfgz} {output.vcf}; "
-		"tabix -p vcf {output.vcfgz}; "
+
+# rule compress_merge_tools:
+# 	input:
+# 		vcf = OUT_FOLDER + "/sv_discovery/merged/{sample}/{sample}.vcf"
+# 	output:
+# 		vcfgz = OUT_FOLDER + "/sv_discovery/merged/{sample}/{sample}.vcf.gz",
+# 		tbi = OUT_FOLDER + "/sv_discovery/merged/{sample}/{sample}.vcf.gz.tbi"
+# 	conda:
+# 		SNAKEDIR + "envs/bcftools.yaml"
+# 	shell:
+# 		"bcftools sort -Oz -o {output.vcfgz} {input.vcf}; "
+# 		"tabix -p vcf {output.vcfgz}; "
 
 ###################################################################################################
 ## Merge samples for Joint-genotyping
@@ -62,9 +70,7 @@ if (useJAMINE):
 		input:
 			vcf_list = OUT_FOLDER + "/merged_cohort/vcf.list"
 		output:
-			vcf = OUT_FOLDER + "/merged_cohort/raw_merged.vcf",
-			vcfgz = OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz",
-			tbi = OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz.tbi"
+			vcf = OUT_FOLDER + "/merged_cohort/raw_merged.vcf"
 		conda:
 			SNAKEDIR + "envs/jasmine.yaml"
 		params:
@@ -72,16 +78,12 @@ if (useJAMINE):
 		shell:
 			"jasmine file_list={params.vcf_list} out_file={output.vcf}; " 
 			"jasmine --dup_to_ins --postprocess_only out_file={output.vcf}; "
-			"bcftools sort -Oz -o {output.vcfgz} {output.vcf}; "
-			"tabix -p vcf {output.vcfgz}; "
 else:
 	checkpoint merge_samples_02:
 		input:
 			vcf_list = OUT_FOLDER + "/merged_cohort/vcf.list"
 		output:
-			vcf = OUT_FOLDER + "/merged_cohort/raw_merged.vcf",
-			vcfgz = OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz",
-			tbi = OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz.tbi"
+			vcf = OUT_FOLDER + "/merged_cohort/raw_merged.vcf"
 		conda:
 			SNAKEDIR + "envs/survivor.yaml"
 		params:
@@ -101,8 +103,18 @@ else:
 				{params.dist_based} \
 				{params.min_sv_size} \
 				{output.vcf}; "
-			"bcftools sort -Oz -o {output.vcfgz} {output.vcf}; "
-			"tabix -p vcf {output.vcfgz}; "
+
+rule compress_merge_samples_02:
+	input:
+		vcf = OUT_FOLDER + "/merged_cohort/raw_merged.vcf"
+	output:
+		vcfgz = OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz",
+		tbi = OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz.tbi"
+	conda:
+		SNAKEDIR + "envs/bcftools.yaml"
+	shell:
+		"bcftools sort -Oz -o {output.vcfgz} {input.vcf}; "
+		"tabix -p vcf {output.vcfgz}; "
 
 ###################################################################################################
 ## Joint-genotyping
@@ -121,7 +133,7 @@ rule genotype_01:
 		gvcf = OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz"
 	output:
 		avg_cov_by_readlen = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.{chrom}.avg_cov_by_readlen", 
-		vcf = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.{chrom}.vcf.gz"
+		vcf = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.{chrom}.vcf"
 	conda:
 		SNAKEDIR + "envs/graphtyper.yaml"
 	params:
@@ -139,25 +151,45 @@ rule genotype_01:
 			--max_files_open=1 \
 			--threads=1 \
 			--output={params.outdir}; "
-		"graphtyper vcf_concatenate {params.outdir}/{params.chrom}/*.vcf.gz | bcftools sort | bgzip -c > {output.vcf}; "
+		"graphtyper vcf_concatenate {params.outdir}/{params.chrom}/*.vcf.gz > {output.vcf}; "
 		"rm -rf {params.outdir}/{params.chrom}; "
+
+rule compress_genotype_01:
+	input:
+		vcf = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.{chrom}.vcf"
+	output:
+		vcf = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.{chrom}.vcf.gz"
+	conda:
+		SNAKEDIR + "envs/bcftools.yaml"
+	shell:
+		"bcftools sort -Oz -o {output.vcf} {input.vcf}; "
+		"tabix -p vcf {output.vcf}; "
 
 rule genotype_02:
 	input:
 		tbi = OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz.tbi",
 		vcf = lambda wildcards: expand(OUT_FOLDER + "/sv_genotyping/" + wildcards.sample + "/" + wildcards.sample + ".{chrom}.vcf.gz", chrom=get_chr(OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz"))
 	output:
-		vcf = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf",
+		vcf = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf"
+	conda:
+		SNAKEDIR + "envs/graphtyper.yaml"
+	priority: 0
+	shell:
+		"graphtyper vcf_concatenate {input.vcf} > {output.vcf}; "
+
+rule compress_and_filter_genotype_02:
+	input:
+		vcf = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf"
+	output:
 		vcfgz = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz",
 		tbi = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz.tbi",
 		filt_vcfgz = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}_filt.vcf.gz",
 		filt_tbi = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}_filt.vcf.gz.tbi"
 	conda:
-		SNAKEDIR + "envs/graphtyper.yaml"
+		SNAKEDIR + "envs/bcftools.yaml"
 	priority: 0
 	shell:
-		"graphtyper vcf_concatenate {input.vcf} | bcftools view --include \"SVMODEL='AGGREGATED'\" | bcftools sort > {output.vcf}; "
-		"bgzip -c {output.vcf} > {output.vcfgz}; "
+		"bcftools view --include \"SVMODEL='AGGREGATED'\" {input.vcf} | bcftools sort -Oz -o {output.vcfgz}; "
 		"tabix -p vcf {output.vcfgz}; "
 		"bcftools view -e QUAL==0 -Oz -o {output.filt_vcfgz} {output.vcfgz}; "
 		"tabix -p vcf {output.filt_vcfgz}; "
@@ -166,17 +198,25 @@ rule merge_genotyped_samples:
 	input:
 		vcf = expand(OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf.gz", sample=participant_id)
 	output:
-		vcf_full = OUT_FOLDER + "/merged_cohort/gt_merged_full.vcf",
+		vcf_full = OUT_FOLDER + "/merged_cohort/gt_merged_full.vcf"
+	conda:
+		SNAKEDIR + "envs/graphtyper.yaml"		
+	shell:
+		"graphtyper vcf_merge {input.vcf} --sv | grep -E -v \"VarType=XG|VarType=IG\" > {output.vcf_full}; "
+
+rule compress_merge_genotyped_samples:
+	input:
+		vcf = OUT_FOLDER + "/merged_cohort/gt_merged_full.vcf"
+	output:
 		vcfgz_full = OUT_FOLDER + "/merged_cohort/gt_merged_full.vcf.gz",
 		tbi_full = OUT_FOLDER + "/merged_cohort/gt_merged_full.vcf.gz.tbi",
 		vcf = OUT_FOLDER + "/merged_cohort/gt_merged.vcf",
 		vcfgz = OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz",
 		tbi = OUT_FOLDER + "/merged_cohort/gt_merged.vcf.gz.tbi"
 	conda:
-		SNAKEDIR + "envs/graphtyper.yaml"		
+		SNAKEDIR + "envs/bcftools.yaml"		
 	shell:
-		"graphtyper vcf_merge {input.vcf} --sv | grep -E -v \"VarType=XG|VarType=IG\" > {output.vcf_full}; "
-		"bcftools sort -Oz -o {output.vcfgz_full} {output.vcf_full}; "
+		"bcftools sort -Oz -o {output.vcfgz_full} {input.vcf}; "
 		"tabix -p vcf {output.vcfgz_full}; "
 		"bcftools view -e QUAL==0 {output.vcfgz_full} > {output.vcf}; "
 		"bgzip -c {output.vcf} > {output.vcfgz}; "

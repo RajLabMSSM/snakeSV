@@ -4,8 +4,7 @@ rule smoove:
 		bai = OUT_FOLDER + "/input/{sample}.bam.bai"
 	output:
 		outdir = temp(directory(OUT_FOLDER + "/sv_discovery/smoove/{sample}/outdir/")),
-		vcf = OUT_FOLDER + "/sv_discovery/smoove/{sample}/{sample}.smoove.vcf.gz",
-		tbi = OUT_FOLDER + "/sv_discovery/smoove/{sample}/{sample}.smoove.vcf.gz.tbi"
+		vcf = temp(OUT_FOLDER + "/sv_discovery/smoove/{sample}/{sample}.smoove.vcf")
 	params:
 		exclude = LIB_DIR + "/smoove_regions/GRCh" + REF_BUILD + ".exclude.bed"
 	conda:
@@ -15,6 +14,16 @@ rule smoove:
 			--exclude {params.exclude} \
 			--name {wildcards.sample} \
 			--fasta {REFERENCE_FASTA} --genotype {input.bam}; "
-		"zgrep -v 'SVTYPE=BND' {output.outdir}/{wildcards.sample}-smoove.genotyped.vcf.gz | \
-			bcftools sort -Oz -o {output.vcf}; "
+		"zgrep -v 'SVTYPE=BND' {output.outdir}/{wildcards.sample}-smoove.genotyped.vcf.gz > {output.vcf}; "
+
+rule compress_smoove:
+	input:
+		vcf = OUT_FOLDER + "/sv_discovery/smoove/{sample}/{sample}.smoove.vcf"
+	output:
+		vcf = OUT_FOLDER + "/sv_discovery/smoove/{sample}/{sample}.smoove.vcf.gz",
+		tbi = OUT_FOLDER + "/sv_discovery/smoove/{sample}/{sample}.smoove.vcf.gz.tbi"
+	conda:
+		SNAKEDIR + "envs/bcftools.yaml"
+	shell:
+		"bcftools sort -Oz -o {output.vcf} {input.vcf}; "
 		"tabix -p vcf {output.vcf}; "

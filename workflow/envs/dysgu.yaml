@@ -1,8 +1,19 @@
 channels:
   - bioconda
 dependencies:
-  - python=3.7
-  - bcftools=1.9
+  - htslib=1.18
+  - dysgu=1.6.2
   - pip
   - pip:
-      - dysgu
+      - setuptools>=63.0
+      - cython
+      - click>=8.0
+      - numpy
+      - scipy
+      - pandas
+      - pysam==0.21.0
+      - networkx>=2.4
+      - scikit-learn>=0.22
+      - edlib
+      - sortedcontainers
+      - lightgbm

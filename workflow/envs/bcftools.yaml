@@ -1,4 +1,4 @@
 channels:
   - bioconda
 dependencies:
-  - bcftools=1.12
+  - bcftools=1.9
