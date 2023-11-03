@@ -47,8 +47,8 @@ then
 fi
 
 if [ "$1" == "--test_run" ]; then
-  snakeSV --configfile $(dirname $(which snakeSV))/../opt/snakeSV/example/tiny/config.yaml \
-        --config workdir="$(dirname $(which snakeSV))/../opt/snakeSV/example/tiny/files/" OUT_FOLDER="${PWD}/results_snakesv" \
+  snakeSV --configfile $(dirname $(which snakeSV))/example/tiny/config.yaml \
+        --config workdir="$(dirname $(which snakeSV))/example/tiny/files/" OUT_FOLDER="${PWD}/results_snakesv" \
         --cores 1 --use-conda --use-singularity -p
   exit 0
 fi
