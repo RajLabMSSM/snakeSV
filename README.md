@@ -2,7 +2,7 @@
 
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat-square)](http://bioconda.github.io/recipes/snakesv/README.html)
 
-Ricardo A. Vialle (ricardovialle@gmail.com)
+Ricardo A. Vialle 
 
 ---
 

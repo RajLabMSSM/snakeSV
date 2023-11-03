@@ -3,7 +3,7 @@ import glob
 import yaml
 from snakemake.io import *
 
-version="0.6"
+version="0.8"
 
 #container: "docker://mambaorg/micromamba"
 
