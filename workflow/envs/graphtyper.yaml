@@ -1,7 +1,7 @@
 channels:
   - bioconda
 dependencies:
-  - graphtyper=2.7.1
+  - graphtyper=2.7.2
   - survivor=1.0.7
-  - bcftools=1.12
-  - samtools=1.12
+  - bcftools=1.9
+  - samtools=1.9

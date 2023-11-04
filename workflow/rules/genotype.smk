@@ -104,7 +104,7 @@ else:
 				{params.min_sv_size} \
 				{output.vcf}; "
 
-rule compress_merge_samples_02:
+checkpoint compress_merge_samples_02:
 	input:
 		vcf = OUT_FOLDER + "/merged_cohort/raw_merged.vcf"
 	output:
@@ -127,32 +127,43 @@ def get_chr(VCF):
 	except:
 		return(range(1,22))
 
+rule avg_cov_by_readlen:
+	input:
+	  vcf = OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz",
+		bam = OUT_FOLDER + "/input/{sample}.bam"
+	output:
+		avg_cov_by_readlen = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.avg_cov_by_readlen" 
+	conda:
+		SNAKEDIR + "envs/graphtyper.yaml"
+	shell:
+		"samtools idxstats $(readlink {input.bam}) | head -n -1 | awk \'{{sum+=$3+$4; ref+=$2}} END{{print sum/ref}}\' > {output.avg_cov_by_readlen}; "
+
 rule genotype_01:
 	input:
 		bam = OUT_FOLDER + "/input/{sample}.bam",
-		gvcf = OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz"
+		gvcf = OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz",
+		avg_cov_by_readlen = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.avg_cov_by_readlen" 
 	output:
-		avg_cov_by_readlen = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.{chrom}.avg_cov_by_readlen", 
-		vcf = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.{chrom}.vcf"
+		vcf = temp(OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.{chrom}.vcf")
 	conda:
 		SNAKEDIR + "envs/graphtyper.yaml"
 	params:
 		outdir = directory(OUT_FOLDER + "/sv_genotyping/{sample}"),
 		chrom = lambda wildcards: get_chr(OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz")[wildcards.chrom]
-	priority: 999
+	priority: 50
 	shell:
-		"samtools idxstats $(readlink {input.bam}) | head -n -1 | awk \'{{sum+=$3+$4; ref+=$2}} END{{print sum/ref}}\' > {output.avg_cov_by_readlen}; "
 		"graphtyper genotype_sv {REFERENCE_FASTA} {input.gvcf} \
 			--force_no_filter_zero_qual \
-			--avg_cov_by_readlen={output.avg_cov_by_readlen} \
+			--avg_cov_by_readlen={input.avg_cov_by_readlen} \
 			--log={params.outdir}/{params.chrom}/{wildcards.sample}.log \
 			--sam={input.bam} \
 			--region={params.chrom} \
 			--max_files_open=1 \
 			--threads=1 \
-			--output={params.outdir}; "
-		"graphtyper vcf_concatenate {params.outdir}/{params.chrom}/*.vcf.gz > {output.vcf}; "
+			--output={params.outdir} && "
+		"graphtyper vcf_concatenate {params.outdir}/{params.chrom}/*.vcf.gz > {output.vcf}.tmp; "
 		"rm -rf {params.outdir}/{params.chrom}; "
+		"mv {output.vcf}.tmp {output.vcf}; "
 
 rule compress_genotype_01:
 	input:
@@ -161,6 +172,8 @@ rule compress_genotype_01:
 		vcf = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.{chrom}.vcf.gz"
 	conda:
 		SNAKEDIR + "envs/bcftools.yaml"
+	params:
+		chrom = lambda wildcards: get_chr(OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz")[wildcards.chrom]
 	shell:
 		"bcftools sort -Oz -o {output.vcf} {input.vcf}; "
 		"tabix -p vcf {output.vcf}; "
@@ -168,12 +181,11 @@ rule compress_genotype_01:
 rule genotype_02:
 	input:
 		tbi = OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz.tbi",
-		vcf = lambda wildcards: expand(OUT_FOLDER + "/sv_genotyping/" + wildcards.sample + "/" + wildcards.sample + ".{chrom}.vcf.gz", chrom=get_chr(OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz"))
+		vcf = lambda wildcards: expand(OUT_FOLDER + "/sv_genotyping/{{sample}}/{{sample}}.{chrom}.vcf.gz", chrom=get_chr(OUT_FOLDER + "/merged_cohort/raw_merged.vcf.gz"))
 	output:
-		vcf = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf"
+		vcf = temp(OUT_FOLDER + "/sv_genotyping/{sample}/{sample}.vcf")
 	conda:
 		SNAKEDIR + "envs/graphtyper.yaml"
-	priority: 0
 	shell:
 		"graphtyper vcf_concatenate {input.vcf} > {output.vcf}; "
 
@@ -187,7 +199,6 @@ rule compress_and_filter_genotype_02:
 		filt_tbi = OUT_FOLDER + "/sv_genotyping/{sample}/{sample}_filt.vcf.gz.tbi"
 	conda:
 		SNAKEDIR + "envs/bcftools.yaml"
-	priority: 0
 	shell:
 		"bcftools view --include \"SVMODEL='AGGREGATED'\" {input.vcf} | bcftools sort -Oz -o {output.vcfgz}; "
 		"tabix -p vcf {output.vcfgz}; "

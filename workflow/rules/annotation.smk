@@ -14,6 +14,7 @@ if( "ANNOTATION_BED" not in config ):
 			SNAKEDIR + "envs/svtk.yaml"		
 		params:
 			gencode = config["GENCODE_GTF"]
+		priority: 0
 		shell:
 			"svtk annotate \
 				--gencode {params.gencode} \
@@ -38,6 +39,7 @@ else:
 			gencode_copy = OUT_FOLDER + "/merged_cohort/tmp/gencode.gtf",
 			header = OUT_FOLDER + "/merged_cohort/tmp/header",
 			variants = OUT_FOLDER + "/merged_cohort/tmp/variants"
+		priority: 0
 		shell:
 			# svtk seems to strugle to process large files. 
 			# breaking in small chunks for annotation. 
