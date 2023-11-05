@@ -17,7 +17,7 @@ The easiest way of using *snakeSV* is using Bioconda!
 
 Install *snakeSV* by creating a separated environment (named "snakesv_env") with the command:
 ```
-conda create -n snakesv_env -c bioconda snakesv
+conda create -n snakesv_env -conda-forge -c bioconda snakesv
 conda activate snakesv_env # Command to activate the environment. To deactivate use "conda deactivate"
 ```
 
@@ -30,6 +30,8 @@ cd snakesv_test
 # Run the snakeSV using example data.
 snakeSV --test_run
 ```
+
+You can also test an installation and small test runs using **Google Cloud Shell** [here]((https://shell.cloud.google.com/?ephemeral=true&cloudshell_git_repo=https://github.com/RajLabMSSM/snakeSV.git&cloudshell_tutorial=docs/install.md&shellonly=true))
 
 For more details check the [wiki](https://github.com/RajLabMSSM/snakeSV/wiki) pages for detailed [configuration](https://github.com/RajLabMSSM/snakeSV/wiki#3-installation) and [input](https://github.com/RajLabMSSM/snakeSV/wiki#2-inputs) instructions! We also provide 2 [study cases](https://github.com/RajLabMSSM/snakeSV/wiki/Usage-examples) to illustrate uses of customized annotations and genotyping using a panel of SVs discovered using long-reads!
 

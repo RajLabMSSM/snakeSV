@@ -4,6 +4,8 @@ SAMPLE_KEY: "sampleKey.txt"
 TOOLS: 
   - "manta"
   - "delly"
+  - "smoove"
+  - "dysgu"
 
 STR_TOOLS:
   - "strling"
