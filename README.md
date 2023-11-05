@@ -31,7 +31,7 @@ cd snakesv_test
 snakeSV --test_run
 ```
 
-You can also test an installation and small test runs using **Google Cloud Shell** [here](https://shell.cloud.google.com/?ephemeral=true&cloudshell_tutorial=docs/install_tutorial.md&shellonly=true)
+You can also test an installation and small test runs using **Google Cloud Shell** [here](https://shell.cloud.google.com/?ephemeral=true&cloudshell_git_repo=https://github.com/RajLabMSSM/snakeSV.git&cloudshell_tutorial=docs/install_tutorial.md&shellonly=true)
 
 ---------------
 
