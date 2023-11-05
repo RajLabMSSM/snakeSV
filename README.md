@@ -31,7 +31,9 @@ cd snakesv_test
 snakeSV --test_run
 ```
 
-You can also test an installation and small test runs using **Google Cloud Shell** [here]((https://shell.cloud.google.com/?ephemeral=true&cloudshell_git_repo=https://github.com/RajLabMSSM/snakeSV.git&cloudshell_tutorial=docs/install.md&shellonly=true))
+You can also test an installation and small test runs using **Google Cloud Shell** [here](https://shell.cloud.google.com/?ephemeral=true&cloudshell_git_repo=https://github.com/RajLabMSSM/snakeSV.git&cloudshell_tutorial=docs/install.md&shellonly=true)
+
+---------------
 
 For more details check the [wiki](https://github.com/RajLabMSSM/snakeSV/wiki) pages for detailed [configuration](https://github.com/RajLabMSSM/snakeSV/wiki#3-installation) and [input](https://github.com/RajLabMSSM/snakeSV/wiki#2-inputs) instructions! We also provide 2 [study cases](https://github.com/RajLabMSSM/snakeSV/wiki/Usage-examples) to illustrate uses of customized annotations and genotyping using a panel of SVs discovered using long-reads!
 
