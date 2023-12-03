@@ -5,13 +5,10 @@ rule smoove:
 	output:
 		outdir = temp(directory(OUT_FOLDER + "/sv_discovery/smoove/{sample}/outdir/")),
 		vcf = temp(OUT_FOLDER + "/sv_discovery/smoove/{sample}/{sample}.smoove.vcf")
-	params:
-		exclude = LIB_DIR + "/smoove_regions/GRCh" + REF_BUILD + ".exclude.bed"
 	conda:
 		SNAKEDIR + "envs/smoove.yaml"
 	shell:
 		"smoove call --outdir {output.outdir} \
-			--exclude {params.exclude} \
 			--name {wildcards.sample} \
 			--fasta {REFERENCE_FASTA} --genotype {input.bam}; "
 		"zgrep -v 'SVTYPE=BND' {output.outdir}/{wildcards.sample}-smoove.genotyped.vcf.gz > {output.vcf}; "

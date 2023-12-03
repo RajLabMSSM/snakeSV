@@ -6,10 +6,8 @@ rule delly:
 		bcf = OUT_FOLDER + "/sv_discovery/delly/{sample}/{sample}.bcf"
 	conda:
 		SNAKEDIR + "envs/delly.yaml"
-	params:
-		exclude = LIB_DIR + "/delly_maps/human.hg" + REF_BUILD + ".excl.tsv"
 	shell:
-		"delly call -g {REFERENCE_FASTA} -o {output.bcf} -x {params.exclude} $(readlink {input.bam}); "
+		"delly call -g {REFERENCE_FASTA} -o {output.bcf} $(readlink {input.bam}); "
 
 rule compress_delly:
 	input:

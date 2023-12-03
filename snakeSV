@@ -32,9 +32,9 @@ if ! command -v snakemake &> /dev/null
 fi
 
 # Check if snakeSV is in the PATH
-if ! command -v snakeSV &> /dev/null
-then
-  echo "snakeSV could not be found. Adding script to PATH"
+#if ! command -v snakeSV &> /dev/null
+#then
+#  echo "snakeSV could not be found. Adding script to PATH"
   # Getting the running path
   MY_PATH="$(dirname -- "${BASH_SOURCE[0]}")" # relative
   MY_PATH="$(cd -- "$MY_PATH" && pwd)" # absolutized and normalized
@@ -44,7 +44,7 @@ then
     exit 1  # fail
   fi
   export PATH=$MY_PATH:$PATH
-fi
+#fi
 
 if [ "$1" == "--test_run" ]; then
   snakeSV --configfile $(dirname $(which snakeSV))/example/tiny/config.yaml \
